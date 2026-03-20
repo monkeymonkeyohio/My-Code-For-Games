@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost_Core // Definitive v25.5</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+:root { 
+    --main-color: #00ff00; 
+    --bg-dark: #0a0a0a; 
+    --danger: #ff4444; 
+    --glow: 0 0 12px rgba(0, 255, 0, 0.4);
+    --folder-icon: url('https://www.pngkey.com/png/full/392-3921813_flat-folder-icon-png-folder-icon.png');
+}
+
+body, html { 
+    margin: 0; 
+    padding: 0; 
+    height: 100%; 
+    font-family: 'Courier New', monospace; 
+    background: #000; 
+    overflow: hidden; 
+    color: var(--main-color);
+}
+
+/* Layer 1: The "Boring" Decoy View */
+#boring-view { 
+    padding: 40px 10%; 
+    color: #444; 
+    background: #fff; 
+    min-height: 100vh; 
+    font-family: "Times New Roman", serif; 
+    position: relative; 
+    z-index: 1; 
+}
+
+/* Layer 2: Visual Backgrounds */
+#matrix-bg { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    z-index: 2; 
+    display: none; 
+    opacity: 0.3; 
+    pointer-events: none; 
+}
+
+#panic-white { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: white; 
+    opacity: 0; 
+    pointer-events: none; 
+    z-index: 99999; 
+    transition: opacity 0.1s ease; 
+}
+#panic-white.active { opacity: 1; pointer-events: auto; }
+
+/* Layer 3: Main System Interface */
+#game-view { 
+    display: none; 
+    flex-direction: column; 
+    height: 100vh; 
+    width: 100%; 
+    background: #000; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    z-index: 5; 
+}
+
+.status-bar { 
+    background: #000; 
+    padding: 12px 25px; 
+    border-bottom: 1px solid #1a1a1a; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+/* Layer 4: The Sidebar (Always on top) */
+#secret-input-zone { 
+    position: fixed; 
+    right: 0; 
+    top: 0; 
+    width: 2px; 
+    height: 100%; 
+    z-index: 10000; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    background: transparent; 
+}
+#secret-input-zone.primed { width: 25px; background: rgba(0, 255, 0, .05); border-left: 1px solid var(--main-color); }
+#secret-input-zone.primed:hover { width: 350px; background: rgba(5, 5, 5, 0.98); border-left: 3px solid var(--main-color); box-shadow: -10px 0 30px rgba(0, 0, 0, 1); }
+
+.secret-content { display: none; padding: 25px; height: 100%; overflow-y: auto; text-shadow: var(--glow); }
+#secret-input-zone.primed:hover .secret-content { display: block; }
+
+.stealth-input { 
+    width: 100%; 
+    padding: 12px; 
+    background: #000; 
+    border: 1px solid #222; 
+    color: var(--main-color); 
+    margin-bottom: 10px; 
+    font-family: monospace; 
+    outline: none; 
+    box-sizing: border-box; 
+}
+.secret-btn { 
+    background: #000; 
+    border: 1px solid var(--main-color); 
+    color: var(--main-color); 
+    padding: 10px; 
+    cursor: pointer; 
+    width: 100%; 
+    margin-bottom: 8px; 
+    font-family: monospace; 
+    text-transform: uppercase;
+    transition: 0.2s; 
+}
+.secret-btn:hover { background: var(--main-color); color: #000; box-shadow: var(--glow); }
+
+/* Windows System */
+.window-panel { 
+    user-select: none; /* Prevents highlighting text while dragging */ 
+    touch-action: none; /* Prevents scrolling on mobile while dragging */
+    display: none; 
+    position: fixed; 
+    background: rgba(0,0,0,0.95); 
+    border: 1px solid var(--main-color); 
+    z-index: 2000; 
+    box-shadow: var(--glow); 
+    backdrop-filter: blur(4px);
+    box-sizing: border-box; /* Prevents padding from breaking width */
+    min-width: 300px;
+    min-height: 200px;
+}
+.window-header { 
+    padding: 10px; 
+    background: rgba(0, 255, 0, 0.1); 
+    border-bottom: 1px solid var(--main-color); 
+    cursor: move; 
+    font-size: 11px; 
+    display: flex; 
+    justify-content: space-between; 
+    user-select: none; 
+}
+.window-body { padding: 15px; height: calc(100% - 45px); display: flex; overflow: hidden; }
+
+/* File Explorer Specifics */
+#fe-sidebar { width: 140px; border-right: 1px solid #222; padding-right: 10px; display: flex; flex-direction: column; gap: 8px; }
+#fe-main { flex-grow: 1; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 20px; align-content: start; overflow-y: auto; }
+.fe-item { width: 80px; text-align: center; cursor: pointer; padding: 8px; border: 1px solid transparent; transition: 0.2s; }
+.fe-item:hover { background: rgba(0,255,0,0.05); border: 1px solid rgba(0,255,0,0.2); }
+.fe-icon { width: 40px; height: 40px; margin: 0 auto 8px; background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; }
+.icon-folder { background-image: var(--folder-icon); }
+.icon-file { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2300ff00" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>'); }
+.fe-label { font-size: 10px; word-break: break-all; margin-top: 4px; }
+
+#trash-zone.drag-over { background: var(--danger) !important; color: #000 !important; box-shadow: 0 0 20px var(--danger); }
+
+/* Terminal & Editor */
+#cmd-output { height: 100%; width: 100%; overflow-y: auto; font-size: 12px; line-height: 1.4; color: var(--main-color); scrollbar-width: thin; }
+#cmd-input { background: transparent; border: none; color: #fff; font-family: monospace; outline: none; flex-grow: 1; font-size: 12px; }
+
+#text-editor { 
+    display: none; 
+    position: fixed; 
+    background: #000; 
+    border: 1px solid #00ffff; 
+    z-index: 3000; 
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); 
+}
+#edit-area { width: 100%; height: 85%; background: #050505; color: #00ffff; border: none; padding: 15px; box-sizing: border-box; font-family: monospace; outline: none; resize: none; }
+
+/* Grid Modules */
+#menu-container { padding: 40px; display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 25px; flex-grow: 1; overflow-y: auto; justify-content: center; }
+.game-card { 
+    width: 200px; 
+    height: 100px; 
+    background: #000; 
+    border: 1px solid #222; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    position: relative;
+}
+.game-card:hover { border-color: var(--main-color); box-shadow: var(--glow); transform: translateY(-2px); }
+.card-del { position: absolute; top: 8px; right: 8px; color: var(--danger); font-size: 10px; opacity: 0.3; transition: 0.2s; }
+.game-card:hover .card-del { opacity: 1; }
+
+#game-container { display: none; flex-grow: 1; overflow: hidden; background: #000; }
+#game-frame { width: 100%; height: 100%; border: none; transform-origin: top left; }
+    </style>
+</head>
+<body onkeydown="detectDoubleEnter(event)">
+    <canvas id="matrix-bg"></canvas>
+    <div id="panic-white"></div>
+
+    <div id="boring-view">
+        <h1>Advanced Computational Theory</h1>
+        <hr>
+        <p>Theoretical frameworks regarding the limits of information processing systems...</p>
+        <p><i>System Status: Passive. Double-tap [ENTER] to initiate.</i></p>
+    </div>
+
+    <div id="secret-input-zone">
+        <div class="secret-content">
+            <h3 style="border-bottom: 1px solid #222; padding-bottom: 10px;">GHOST_CORE_v25.5</h3>
+            <div id="step-passcode">
+                <input type="password" id="p-code" class="stealth-input" placeholder="ACCESS_KEY">
+                <button class="secret-btn" onclick="verifyPass()">VERIFY_KEY</button>
+            </div>
+            <div id="step-username" style="display:none;">
+                <input type="text" id="u-name" class="stealth-input" placeholder="ID_STAMP">
+                <button class="secret-btn" onclick="handleUser()">IDENTIFY_ID</button>
+            </div>
+            <div id="step-login" style="display:none;"><p id="user-greeting"></p><button class="secret-btn" onclick="handleAuth()">ENGAGE_CORE</button></div>
+            <div id="auth-only" style="display:none;">
+                <button class="secret-btn" onclick="toggleWindow('cmd-panel')">TERMINAL</button>
+                <button class="secret-btn" onclick="toggleWindow('fe-panel')">FILE_EXPLORER</button>
+                <button class="secret-btn" style="color:var(--danger);" onclick="location.reload()">LOGOUT</button>
+                <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+                <input type="text" id="yt-url" class="stealth-input" placeholder="YOUTUBE_URL">
+                <button class="secret-btn" onclick="decodeYT()">DECODE_YOUTUBE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cmd-panel" class="window-panel" style="bottom: 30px; left: 30px;">
+        <div class="window-header">
+            <span>TERMINAL_CORE</span>
+            <div class="win-ctrls">
+                <span onclick="toggleFS('cmd-panel')">[]</span>
+                <span onclick="toggleWindow('cmd-panel')">X</span>
+            </div>
+        </div>
+        <div class="window-body" style="flex-direction: column;">
+            <div id="cmd-output">Ghost_Terminal [Restored]
+Type 'help' for commands.</div>
+            <div class="cmd-line"><span>$ghost: </span><input type="text" id="cmd-input" autocomplete="off"></div>
+        </div>
+    </div>
+
+    <div id="fe-panel" class="window-panel" style="top: 50px; left: 50px; height: 500px; width: 650px;">
+        <div class="window-header">
+            <span>FILE_EXPLORER</span>
+            <div class="win-ctrls">
+                <span onclick="toggleFS('fe-panel')">[]</span>
+                <span onclick="toggleWindow('fe-panel')">X</span>
+            </div>
+        </div>
+        <div class="window-body">
+            <div id="fe-sidebar">
+                <button class="secret-btn" onclick="createFolder()">+ FOLDER</button>
+                <button class="secret-btn" onclick="createFile()">+ TXT_FILE</button>
+                <button class="secret-btn" style="margin-top:20px" onclick="exportData()">EXPORT</button>
+                <button class="secret-btn" onclick="document.getElementById('file-import').click()">IMPORT</button>
+                <input type="file" id="file-import" style="display:none" onchange="importData(event)">
+                <button id="trash-zone" class="secret-btn" 
+                        style="margin-top: auto; color: var(--danger); border-style: dashed;"
+                        ondragover="allowDrop(event); this.classList.add('drag-over')" 
+                        ondragleave="this.classList.remove('drag-over')" 
+                        ondrop="dropToTrash(event)">[ SHREDDER ]</button>
+            </div>
+            <div id="fe-main" ondrop="dropFile(event)" ondragover="allowDrop(event)"></div>
+        </div> </div>
+
+    <div id="text-editor" class="window-panel" style="z-index: 25000; width: 500px; height: 400px; top: 20%; left: 30%;">
+        <div class="window-header">
+            <span>EDITOR</span>
+            <span onclick="closeEditor()" style="cursor:pointer">X</span>
+        </div>
+        <div class="window-body" style="flex-direction: column; padding: 0;">
+            <textarea id="edit-area" style="width: 100%; height: 85%; background: #050505; color: #00ffff; border: none; padding: 15px; box-sizing: border-box; font-family: monospace; outline: none; resize: none;" placeholder="Format: Name | URL"></textarea>
+            <button class="secret-btn" style="width:100%; color:cyan; border-color:cyan; margin-bottom: 0;" onclick="saveText()">SAVE & INJECT</button>
+        </div>
+    </div>
+
+    <div id="game-view">
+        <div class="status-bar">
+            <span id="user-display">UNVERIFIED</span>
+            <span id="back-to-menu" style="cursor:pointer; display:none; color:var(--danger);" onclick="exitGame()">[ DISCONNECT ]</span>
+        </div>
+        <div id="menu-container"></div>
+        <div id="game-container"><iframe id="game-frame" src="about:blank"></iframe></div>
+    </div>
+<script>
+    let lastEnterTime = 0, sessionUser = null, currentZoom = 1, highestZ = 10000;
+    let vfs = JSON.parse(localStorage.getItem('ghost_vfs')) || { "root": { type: "dir", children: {} } };
+    let currentPath = ["root"], openFileName = null;
+    const secretZone = document.getElementById('secret-input-zone');
+
+    // --- AUTH & CORE ---
+    flet lastEnterTime = 0; // Ensure this is at the very top of your script
+
+function detectDoubleEnter(e) {
+    if (e.key === 'Enter') {
+        const now = Date.now();
+        const diff = now - lastEnterTime;
+
+        // 400ms is the sweet spot for a double-tap
+        if (diff < 400 && diff > 50) { 
+            console.log("[!] ACCESS_SEQUENCE_DETECTED");
+            const zone = document.getElementById('secret-input-zone');
+            zone.classList.toggle('primed');
+            
+            // Auto-focus the password box when it opens
+            if (zone.classList.contains('primed')) {
+                setTimeout(() => {
+                    document.getElementById('p-code').focus();
+                }, 100);
+            }
+        }
+        lastEnterTime = now;
+    }
+}
+
+    function handleUser() { 
+        sessionUser = document.getElementById('u-name').value.trim(); 
+        if(!sessionUser) return;
+        document.getElementById('step-username').style.display='none'; 
+        document.getElementById('step-login').style.display='block'; 
+        document.getElementById('user-greeting').innerText = `ID: ${sessionUser.toUpperCase()}`; 
+    }
+
+    function handleAuth() { 
+        document.getElementById('step-login').style.display='none'; 
+        document.getElementById('auth-only').style.display='block'; 
+        document.getElementById('user-display').innerText = `SESSION // ${sessionUser.toUpperCase()}`; 
+        document.getElementById('game-view').style.display="flex"; 
+        document.getElementById('boring-view').style.display="none"; 
+        startMatrix(); 
+        loadModules(); 
+        renderFE(); 
+    }
+
+    function lockSystem() {
+        document.getElementById('panic-white').classList.add('active');
+        setTimeout(() => { location.reload(); }, 500);
+    }
+
+    // --- WINDOW MANAGEMENT ---
+    function toggleWindow(id) { 
+        let el = document.getElementById(id); 
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
+        if(el.style.display === 'block') { highestZ++; el.style.zIndex = highestZ; }
+    }
+
+    document.querySelectorAll('.window-header').forEach(header => {
+        header.onmousedown = function(e) {
+            if(e.target.innerText === 'X') return; // Don't drag if clicking X
+            let panel = header.parentElement;
+            highestZ++; panel.style.zIndex = highestZ;
+            if (panel.style.width === '100%') return; 
+            let rect = panel.getBoundingClientRect();
+            let shiftX = e.clientX - rect.left, shiftY = e.clientY - rect.top;
+            function moveAt(pageX, pageY) {
+                panel.style.left = (pageX - shiftX) + 'px';
+                panel.style.top = (pageY - shiftY) + 'px';
+                panel.style.bottom = 'auto'; panel.style.right = 'auto'; 
+            }
+            function onMouseMove(ev) { moveAt(ev.pageX, ev.pageY); }
+            document.addEventListener('mousemove', onMouseMove);
+            document.onmouseup = function() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.onmouseup = null;
+            };
+        };
+    });
+
+    // --- FILE SYSTEM ---
+    function getDir(p) { 
+        let c = vfs; 
+        p.forEach(x => { if (c[x] && c[x].children) c = c[x].children; else if(c[x]) c = c[x]; }); 
+        return c; 
+    }
+
+    function saveVFS() { localStorage.setItem('ghost_vfs', JSON.stringify(vfs)); renderFE(); }
+
+    function renderFE() {
+    const main = document.getElementById("fe-main"); 
+    main.innerHTML = "";
+    let currentDir = getDir(currentPath);
+
+    // Back Button Logic
+    if (currentPath.length > 1) {
+        let back = document.createElement('div'); 
+        back.className = "fe-item";
+        back.innerHTML = `<div class="fe-icon icon-folder" style="filter:hue-rotate(180deg)"></div><div class="fe-label">..BACK</div>`;
+        back.onclick = () => { currentPath.pop(); renderFE(); }; 
+        main.appendChild(back);
+    }
+
+    Object.keys(currentDir).forEach(name => {
+        let item = currentDir[name];
+        let div = document.createElement('div'); 
+        div.className = "fe-item";
+        div.setAttribute('draggable', 'true');
+        
+        // Drag Start: Essential for Shredder & Folders
+        div.ondragstart = (e) => { 
+            e.dataTransfer.setData("text/plain", name); 
+            e.dataTransfer.effectAllowed = "move";
+        };
+
+        // Folder-on-Folder / File-on-Folder Drop Logic
+        if(item.type === 'dir') {
+            div.ondragover = (e) => e.preventDefault(); // Allow dropping here
+            div.ondrop = (e) => {
+                e.preventDefault();
+                const draggedName = e.dataTransfer.getData("text/plain");
+                if(draggedName && draggedName !== name) {
+                    item.children[draggedName] = currentDir[draggedName];
+                    delete currentDir[draggedName];
+                    saveVFS();
+                    printToCMD(`$sys: Moved [${draggedName}] into [${name}]`);
+                }
+            };
+        }
+
+        div.innerHTML = `
+            <div class="fe-icon ${item.type==='dir'?'icon-folder':'icon-file'}"></div>
+            <div class="fe-label" contenteditable="true" onblur="renameItem('${name}', this.innerText)">${name}</div>
+        `;
+
+        // Navigation and Editor Trigger
+        div.ondblclick = () => { 
+            if(item.type === 'dir') { 
+                currentPath.push(name); 
+                renderFE(); 
+            } else { 
+                openEditor(name, item.content || ""); 
+            }
+        };
+        main.appendChild(div);
+    });
+}
+
+        // This ALLOWS folders to receive other files
+        if(item.type === 'dir') {
+            div.ondragover = (e) => e.preventDefault();
+            div.ondrop = (e) => {
+                e.preventDefault();
+                const draggedName = e.dataTransfer.getData("text/plain");
+                if(draggedName && draggedName !== name) {
+                    // Move the file into this folder
+                    item.children[draggedName] = currentDir[draggedName];
+                    delete currentDir[draggedName];
+                    saveVFS();
+                    printToCMD(`$sys: Moved ${draggedName} into ${name}`);
+                }
+            };
+        }
+
+        div.innerHTML = `<div class="fe-icon ${item.type==='dir'?'icon-folder':'icon-file'}"></div>
+                         <div class="fe-label" contenteditable="true" onblur="renameItem('${name}', this.innerText)">${name}</div>`;
+        
+        div.ondblclick = () => { 
+            if(item.type === 'dir') { currentPath.push(name); renderFE(); }
+            else { openEditor(name, item.content || ""); }
+        };
+        main.appendChild(div);
+    });
+}
+
+    function createFolder() { 
+        let n = "New_Dir_" + Math.floor(Math.random()*100); 
+        getDir(currentPath)[n] = { type: "dir", children: {} }; saveVFS(); 
+    }
+
+    function createFile() { 
+        let n = "Note_" + Math.floor(Math.random()*100) + ".txt"; 
+        getDir(currentPath)[n] = { type: "file", content: "" }; saveVFS(); 
+    }
+
+    function renameItem(old, n) { 
+        let dir = getDir(currentPath); if(n && n !== old) { dir[n] = dir[old]; delete dir[old]; saveVFS(); } 
+    }
+
+    /// Updated AllowDrop to be more aggressive
+window.allowDrop = function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+};
+
+// Updated Shredder logic
+window.dropToTrash = function(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+    
+    // Get the ID/Name of the dragged item
+    const name = e.dataTransfer.getData("text/plain");
+    const dir = getDir(currentPath);
+    
+    if (name && dir[name]) {
+        if (confirm(`SHRED ${name.toUpperCase()}?`)) {
+            delete dir[name];
+            saveVFS();
+            printToCMD(`$sys: ${name} eradicated.`);
+        }
+    } else {
+        printToCMD("$err: Shredder sequence failed - Item not found.");
+    }
+};
+
+   // --- TERMINAL LOGIC ---
+function runCommand(v) {
+    // Split the command from the rest of the string so we can handle spaces in URLs/Notes
+    let args = v.trim().split(/\s+/);
+    let cmd = args[0].toLowerCase();
+    let val = args.slice(1).join(" "); 
+    
+    printToCMD(`$ghost> ${v}`);
+
+    switch(cmd) {
+        case "help":
+            printToCMD(`
+================================
+ ❖ CORE PROTOCOLS ❖
+================================
+ • scan [url]   : Probe target origin
+ • save [text]  : Commit note to buffer
+ • notes        : Open VFS Explorer
+ • import       : Load backup JSON
+ • export       : Generate backup JSON
+ • wipe         : Purge note buffer
+ • lock         : Engage panic screen
+ • logout       : Terminate session
+ • clr          : Clear terminal logs
+ • zoom [val]   : Scale active frame
+ • theme [col]  : green | red | blue
+================================`);
+            break;
+        case "scan": 
+            if(val) executeLoad(val); 
+            else printToCMD("$err: Missing target URL.");
+            break;
+        case "save":
+            if(val) {
+                document.getElementById('edit-area').value += val + "\n";
+                printToCMD(`$sys: '${val}' saved to buffer.`);
+            } else printToCMD("$err: Missing text payload.");
+            break;
+        case "theme": 
+            const colors = {green:"#00FF00", red:"#FF4444", blue:"#00FFFF", gold:"#FFD700", purple:"#A020F0"};
+            if(colors[val]) {
+                document.documentElement.style.setProperty('--main-color', colors[val]);
+                printToCMD(`$sys: Theme overriden to ${val.toUpperCase()}`);
+            } else {
+                printToCMD("$err: Unknown hex/color code.");
+            }
+            break;
+        case "zoom": 
+            if(val) { 
+                currentZoom = parseFloat(val); 
+                document.getElementById('game-frame').style.transform = `scale(${currentZoom})`; 
+                printToCMD(`$sys: Viewport scaled to ${currentZoom}x`);
+            } 
+            break;
+        case "export":
+            printToCMD("$sys: Exporting Virtual File System...");
+            // Simple backup trigger
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vfs));
+            let dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "ghost_vfs_backup.json");
+            dlAnchorElem.click();
+            break;
+        case "import":
+            document.getElementById('file-import').click();
+            printToCMD("$sys: Awaiting file injection...");
+            break;
+        case "clr": 
+            document.getElementById("cmd-output").innerText = "Ghost_Terminal [Restored]\nType 'help' for commands."; 
+            break;
+        case "logout": 
+            location.reload(); 
+            break;
+        case "lock": 
+            lockSystem(); 
+            break;
+        case "wipe": 
+            document.getElementById('edit-area').value = ""; 
+            printToCMD("$sys: Text buffer purged."); 
+            break;
+        case "notes": 
+            toggleWindow('fe-panel'); 
+            printToCMD("$sys: Bypassing VFS security..."); 
+            break;
+        default: 
+            if (cmd) printToCMD(`$err: Unknown protocol: ${cmd}`);
+    }
+}
+
+    function loadModules() {
+        const m = document.getElementById('menu-container'); m.innerHTML = "";
+        let v = JSON.parse(localStorage.getItem('ghost_vault')) || {};
+        (v[sessionUser] || []).forEach((g, idx) => {
+            let d = document.createElement('div'); d.className = "game-card"; 
+            d.innerHTML = `${g.name.toUpperCase()} <span class="card-del" onclick="delMod(${idx}, event)">X</span>`;
+            d.onclick = () => executeLoad(g.url); m.appendChild(d);
+        });
+    }
+
+    function executeLoad(u) { 
+        if(!u.startsWith('http')) u = 'https://' + u; 
+        document.getElementById('game-frame').src = u; 
+        document.getElementById('game-container').style.display = 'block'; 
+        document.getElementById('menu-container').style.display = 'none'; 
+        document.getElementById('back-to-menu').style.display = 'block'; 
+    }
+
+    function exitGame() { 
+        document.getElementById('game-frame').src = "about:blank"; 
+        document.getElementById('game-container').style.display = 'none'; 
+        document.getElementById('menu-container').style.display = 'grid'; 
+        document.getElementById('back-to-menu').style.display = 'none'; 
+    }
+
+    function startMatrix() {
+        const c = document.getElementById('matrix-bg'); const ctx = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
+        const drops = Array(Math.floor(c.width/14)).fill(1);
+        setInterval(() => {
+            ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+            ctx.font = "14px monospace";
+            drops.forEach((y, i) => {
+                ctx.fillText(Math.random() > 0.5 ? "1" : "0", i*14, y*14);
+                if(y*14 > c.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }, 33);
+    }
+
+    document.getElementById('p-code').onkeydown = (e) => { if(e.key === 'Enter') verifyPass(); };
+    document.getElementById('u-name').onkeydown = (e) => { if(e.key === 'Enter') handleUser(); };
+// --- WINDOW FULLSCREEN LOGIC ---
+window.toggleFS = function(id) {
+    let panel = document.getElementById(id);
+    
+    // If it is NOT fullscreen yet
+    if (!panel.dataset.fs || panel.dataset.fs === "false") {
+        // Save current dimensions to data attributes
+        panel.dataset.origTop = panel.style.top || "50px";
+        panel.dataset.origLeft = panel.style.left || "50px";
+        panel.dataset.origWidth = panel.style.width || "auto";
+        panel.dataset.origHeight = panel.style.height || "auto";
+
+        // Snap to fullscreen
+        panel.style.top = "0px";
+        panel.style.left = "0px";
+        panel.style.width = "100vw";
+        panel.style.height = "100vh";
+        panel.dataset.fs = "true";
+    } else {
+        // Restore to original size
+        panel.style.top = panel.dataset.origTop;
+        panel.style.left = panel.dataset.origLeft;
+        panel.style.width = panel.dataset.origWidth;
+        panel.style.height = panel.dataset.origHeight;
+        panel.dataset.fs = "false";
+    }
+};
+
+function openEditor(name, content) {
+    window.openFileName = name; // Force to global scope
+    const area = document.getElementById('edit-area');
+    const editor = document.getElementById('text-editor');
+    
+    area.value = content;
+    editor.style.display = 'block';
+    editor.style.zIndex = ++highestZ;
+    
+    printToCMD(`$sys: Editing ${name}...`);
+}
+
+function saveText() {
+    const name = window.openFileName;
+    const content = document.getElementById('edit-area').value;
+    const dir = getDir(currentPath);
+
+    if (name && dir[name]) {
+        // Save to Virtual File System
+        dir[name].content = content;
+        
+        // Handle URL Injection: Name | URL
+        if (content.includes('|')) {
+            let vault = JSON.parse(localStorage.getItem('ghost_vault') || "{}");
+            if (!vault[sessionUser]) vault[sessionUser] = [];
+            
+            const lines = content.split('\n');
+            lines.forEach(line => {
+                if (line.includes('|')) {
+                    const [title, url] = line.split('|').map(s => s.trim());
+                    if (title && url) {
+                        // Check for duplicates
+                        if (!vault[sessionUser].some(m => m.url === url)) {
+                            vault[sessionUser].push({ name: title, url: url });
+                            printToCMD(`$sys: Module [${title}] injected.`);
+                        }
+                    }
+                }
+            });
+            localStorage.setItem('ghost_vault', JSON.stringify(vault));
+            loadModules(); // Refresh main screen buttons
+        }
+
+        saveVFS();
+        closeEditor();
+        printToCMD(`$sys: ${name} saved to disk.`);
+    } else {
+        printToCMD("$err: Save failed. Buffer lost.");
+    }
+}
+</script>
+</body>
+</html>
+
+
