@@ -304,27 +304,45 @@ Type 'help' for commands.</div>
     // --- AUTH & CORE ---
     flet lastEnterTime = 0; // Ensure this is at the very top of your script
 
-function detectDoubleEnter(e) {
+// --- CRITICAL GLOBAL STATE ---
+let lastEnterTime = 0;
+
+// --- THE FIX: GLOBAL EVENT LISTENER ---
+window.addEventListener('keydown', (e) => {
+    // 1. Check for Double Enter
     if (e.key === 'Enter') {
         const now = Date.now();
         const diff = now - lastEnterTime;
 
-        // 400ms is the sweet spot for a double-tap
-        if (diff < 400 && diff > 50) { 
-            console.log("[!] ACCESS_SEQUENCE_DETECTED");
+        if (diff < 450 && diff > 50) { 
+            console.log("[!] ACCESS_SEQUENCE_CONFIRMED");
             const zone = document.getElementById('secret-input-zone');
-            zone.classList.toggle('primed');
             
-            // Auto-focus the password box when it opens
-            if (zone.classList.contains('primed')) {
-                setTimeout(() => {
-                    document.getElementById('p-code').focus();
-                }, 100);
+            if (zone) {
+                zone.classList.toggle('primed');
+                
+                // Auto-focus the password box
+                if (zone.classList.contains('primed')) {
+                    setTimeout(() => {
+                        const pCode = document.getElementById('p-code');
+                        if (pCode) pCode.focus();
+                    }, 150);
+                }
             }
         }
         lastEnterTime = now;
     }
-}
+
+    // 2. The Escape/Panic Key
+    if (e.key === 'Escape') {
+        const zone = document.getElementById('secret-input-zone');
+        if (zone && zone.classList.contains('primed')) {
+            zone.classList.remove('primed');
+            console.log("[!] SIDEBAR_HIDDEN");
+        }
+    }
+}, true); // The 'true' here makes it a "Capturing" listener - it hits this BEFORE the inputs
+
 
     function handleUser() { 
         sessionUser = document.getElementById('u-name').value.trim(); 
@@ -727,5 +745,3 @@ function saveText() {
 </script>
 </body>
 </html>
-
-
