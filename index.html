@@ -6,12 +6,17 @@
     <title>Ghost_Core // Definitive v25.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 :root { 
     --main-color: #00ff00; 
     --bg-dark: #0a0a0a; 
     --danger: #ff4444; 
     --glow: 0 0 12px rgba(0, 255, 0, 0.4);
-    --folder-icon: url('https://www.pngkey.com/png/full/392-3921813_flat-folder-icon-png-folder-icon.png');
+    --folder-icon: url('https://cdn-icons-png.flaticon.com/512/716/716784.png');
 }
 
 body, html { 
@@ -62,9 +67,37 @@ body, html {
 }
 #panic-white.active { opacity: 1; pointer-events: auto; }
 
+#edge-swipe-zone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 18px; /* thin but usable */
+    height: 100%;
+    z-index: 100000;
+
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.2s ease, width 0.2s ease;
+
+    pointer-events: none; /* disabled by default */
+}
+
+#edge-swipe-zone.active {
+    opacity: 0.25;
+    pointer-events: auto;
+    background: red;
+}
+
+#edge-swipe-zone.active:hover {
+    opacity: 0.6;
+    width: 28px;
+}
+
 /* Layer 3: Main System Interface */
 #game-view { 
     display: none; 
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    will-change: transform;
     flex-direction: column; 
     height: 100vh; 
     width: 100%; 
@@ -203,16 +236,44 @@ body, html {
 #game-frame { width: 100%; height: 100%; border: none; transform-origin: top left; }
     </style>
 </head>
-<body onkeydown="detectDoubleEnter(event)">
     <canvas id="matrix-bg"></canvas>
     <div id="panic-white"></div>
-
+    <div id="edge-swipe-zone"></div>
     <div id="boring-view">
         <h1>Advanced Computational Theory</h1>
         <hr>
-        <p>Theoretical frameworks regarding the limits of information processing systems...</p>
-        <p><i>System Status: Passive. Double-tap [ENTER] to initiate.</i></p>
+        <p>Advanced Computational Theory (ACT) is the rigorous study of the limits, capabilities, and fundamental structures of information processing. It is the mathematical heartbeat of every digital interaction, moving beyond simple "coding" into the realm of existential questions: What is computable? How efficiently can we solve a problem? And what happens when the physical limits of silicon meet the infinite complexity of logic? To understand ACT is to understand the transition of humanity from a tool-using species to an information-architecting one.I. The Foundations: Automata and Formal LanguagesAt the bedrock of computational theory lies Automata Theory, the study of abstract machines and the problems they can solve. This field categorizes computation into a hierarchy, most famously the Chomsky Hierarchy.Finite State Machines (FSM): The simplest models, used for basic logic like vending machines or text pattern matching.Context-Free Grammars: The logic that allows programming languages like C++ or Python to be parsed by compilers.Turing Machines: The ultimate theoretical model. Proposed by Alan Turing in 1936, this "machine" consists of an infinite tape and a head that reads/writes symbols.Advanced theory posits that if a problem cannot be solved by a Turing Machine, it is uncomputable. The most famous example is the Halting Problem, which proves mathematically that no program can ever exist that can perfectly predict whether any other program will eventually stop or run forever. This realization sets a hard boundary on human logic: there are some truths that are true, but unprovable through calculation.II. The War of Efficiency: Complexity Theory ($P$ vs $NP$)If Automata Theory asks "Can it be done?", Complexity Theory asks "How much will it cost?" In ACT, "cost" is measured in Time (CPU cycles) and Space (RAM/memory).The most significant unsolved mystery in science today is the relationship between two classes of problems:$P$ (Polynomial Time): Problems we can solve quickly (e.g., sorting a list of names).$NP$ (Nondeterministic Polynomial Time): Problems where we can’t necessarily find a solution quickly, but if someone gives us the answer, we can verify it’s correct instantly (e.g., a complex Sudoku puzzle or cracking an RSA encryption key).The question $P = NP?$ asks if every problem whose solution can be quickly verified can also be quickly solved. If $P$ were found to equal $NP$, modern cryptography would collapse overnight, as the "hard" math guarding bank accounts would suddenly become "easy."III. The Quantum Leap: Non-Classical ComputationWe are currently exiting the "Transistor Era" and entering the Quantum Era. Advanced Computational Theory is being rewritten to accommodate the Qubit. Unlike a traditional bit (0 or 1), a qubit exists in a superposition of both states simultaneously.Theoretical frameworks like Shor’s Algorithm prove that a sufficiently powerful quantum computer could factor large integers exponentially faster than any classical supercomputer. This introduces a new complexity class: BQP (Bounded-error Quantum Polynomial time). ACT researchers are now focused on "Post-Quantum Cryptography," designing math that even a quantum deity couldn't crack.IV. Distributed Systems and the Theory of ConsensusIn the modern age, computation is rarely centralized. It happens across billions of nodes—the Cloud, the Blockchain, and the Internet of Things (IoT). ACT addresses this through Distributed Computing Theory.The primary challenge here is the CAP Theorem, which states that a distributed system can only provide two out of three guarantees:Consistency: Every node sees the same data at the same time.Availability: Every request receives a response.Partition Tolerance: The system continues to work despite network failures.This theoretical constraint is why your bank balance might take a moment to update across different apps, or why decentralized networks like Bitcoin prioritize security over transaction speed.V. The Synthesis: Neural Theory and AIFinally, ACT is converging with biology. Neural Computational Theory treats the human brain as a massive, low-power parallel processor. Modern Deep Learning is an application of this, using layers of "weights" and "biases" to approximate any mathematical function.The frontier of this theory is Artificial General Intelligence (AGI). ACT scientists are working to define the "Algorithm of Consciousness"—a set of recursive functions that would allow a machine to not just process data, but to understand intent and context with the fluidity of a biological mind.Conclusion: The Invisible ArchitectureAdvanced Computational Theory is the silent scaffolding of the 21st century. It tells us that while information is infinite, our resources to process it are governed by the laws of physics and the elegance of mathematics. As we move from silicon to quantum and from code to intent, the theories of Turing, Gödel, and Shannon remain our only map through the digital void.</p>
+        <p><i>Complicated Machine Learning</i></p>
     </div>
+
+<div id="ghost-ai-panel" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    color:#00ff00;
+    font-family:'Courier New', monospace;
+    padding:20px;
+    box-sizing:border-box;
+    z-index:9999;
+    overflow:auto;
+">
+    <div id="ghost-ai-g" style="font-size:60px; font-weight:bold; text-align:center; color:#00ff00; margin-bottom:20px;">⎊</div>
+    <input id="ghost-ai-query" type="text" placeholder="AI is still in refinement. Only dictionary words, search a little. Sometimes rephrase" style="
+        width:100%;
+        padding:10px;
+        background:black;
+        color:#00ff00;
+        border:1px solid #00ff00;
+        border-radius:5px;
+        font-family:'Courier New', monospace;
+        font-size:16px;
+    "/>
+    <div id="ghost-ai-response" style="margin-top:20px; white-space:pre-wrap; font-size:16px;"></div>
+</div>
 
     <div id="secret-input-zone">
         <div class="secret-content">
@@ -237,6 +298,34 @@ body, html {
         </div>
     </div>
 
+<div id="settings-panel" class="window-panel" style="width:320px; height:380px; top:20%; left:35%;">
+    <div class="window-header">
+        <span>SYSTEM_SETTINGS</span>
+        <span onclick="toggleWindow('settings-panel')">X</span>
+    </div>
+
+    <div class="window-body" style="flex-direction:column; gap:15px; font-size:12px;">
+        
+        <label>BRIGHTNESS</label>
+        <input type="range" min="0" max="100" value="100" id="brightness-slider">
+
+        <label>VOLUME</label>
+        <input type="range" min="0" max="100" value="50" id="volume-slider">
+
+        <label>GLOW INTENSITY</label>
+        <input type="range" min="0" max="100" value="40" id="glow-slider">
+
+        <button class="secret-btn" onclick="toggleNight()">NIGHT MODE</button>
+        <button class="secret-btn" onclick="toggleBlue()">BLUE LIGHT FILTER</button>
+
+        <button class="secret-btn" onclick="saveSettings()">SAVE</button>
+    </div>
+</div>
+
+<!-- overlays -->
+<div id="brightness-overlay"></div>
+<div id="blue-overlay"></div>
+
     <div id="cmd-panel" class="window-panel" style="bottom: 30px; left: 30px;">
         <div class="window-header">
             <span>TERMINAL_CORE</span>
@@ -253,28 +342,34 @@ Type 'help' for commands.</div>
     </div>
 
     <div id="fe-panel" class="window-panel" style="top: 50px; left: 50px; height: 500px; width: 650px;">
-        <div class="window-header">
-            <span>FILE_EXPLORER</span>
-            <div class="win-ctrls">
-                <span onclick="toggleFS('fe-panel')">[]</span>
-                <span onclick="toggleWindow('fe-panel')">X</span>
-            </div>
+    <div class="window-header">
+        <span>FILE_EXPLORER</span>
+        <div class="win-ctrls">
+            <span onclick="toggleFS('fe-panel')">[]</span>
+            <span onclick="toggleWindow('fe-panel')">X</span>
         </div>
-        <div class="window-body">
-            <div id="fe-sidebar">
-                <button class="secret-btn" onclick="createFolder()">+ FOLDER</button>
-                <button class="secret-btn" onclick="createFile()">+ TXT_FILE</button>
-                <button class="secret-btn" style="margin-top:20px" onclick="exportData()">EXPORT</button>
-                <button class="secret-btn" onclick="document.getElementById('file-import').click()">IMPORT</button>
-                <input type="file" id="file-import" style="display:none" onchange="importData(event)">
-                <button id="trash-zone" class="secret-btn" 
-                        style="margin-top: auto; color: var(--danger); border-style: dashed;"
-                        ondragover="allowDrop(event); this.classList.add('drag-over')" 
-                        ondragleave="this.classList.remove('drag-over')" 
-                        ondrop="dropToTrash(event)">[ SHREDDER ]</button>
-            </div>
-            <div id="fe-main" ondrop="dropFile(event)" ondragover="allowDrop(event)"></div>
-        </div> </div>
+    </div>
+
+    <div class="window-body">
+        <div id="fe-sidebar">
+            <button class="secret-btn" onclick="createFolder()">+ FOLDER</button>
+            <button class="secret-btn" onclick="createFile()">+ TXT_FILE</button>
+            <button class="secret-btn" style="margin-top:20px" onclick="exportData()">EXPORT</button>
+            <button class="secret-btn" onclick="document.getElementById('file-import').click()">IMPORT</button>
+            <input type="file" id="file-import" style="display:none" onchange="importData(event)">
+<input type="color" id="themePicker" style="display:none;">
+            <button id="trash-zone" class="secret-btn" 
+                style="margin-top: auto; color: var(--danger); border-style: dashed;"
+                ondragover="allowDrop(event); this.classList.add('drag-over')" 
+                ondragleave="this.classList.remove('drag-over')" 
+                ondrop="window.dropToTrash(event, this)">
+                [ SHREDDER ]
+            </button>
+        </div>
+
+        <div id="fe-main" ondrop="dropFile(event)" ondragover="allowDrop(event)"></div>
+    </div>
+</div>
 
     <div id="text-editor" class="window-panel" style="z-index: 25000; width: 500px; height: 400px; top: 20%; left: 30%;">
         <div class="window-header">
@@ -296,127 +391,128 @@ Type 'help' for commands.</div>
         <div id="game-container"><iframe id="game-frame" src="about:blank"></iframe></div>
     </div>
 <script>
-    let lastEnterTime = 0, sessionUser = null, currentZoom = 1, highestZ = 10000;
-    let vfs = JSON.parse(localStorage.getItem('ghost_vfs')) || { "root": { type: "dir", children: {} } };
-    let currentPath = ["root"], openFileName = null;
-    const secretZone = document.getElementById('secret-input-zone');
+window.lastEnterTime = 0;
+window.sessionUser = null;
+window.currentZoom = 1;
+window.highestZ = 10000;
+window.vfs = JSON.parse(localStorage.getItem('ghost_vfs')) || { "root": { type: "dir", children: {} } };
+window.currentPath = ["root"];
+window.openFileName = null;
 
-    // --- AUTH & CORE ---
-    flet lastEnterTime = 0; // Ensure this is at the very top of your script
-
-// --- CRITICAL GLOBAL STATE ---
-let lastEnterTime = 0;
-
-// --- THE FIX: GLOBAL EVENT LISTENER ---
+// --- DOUBLE ENTER SECRET ZONE ---
 window.addEventListener('keydown', (e) => {
-    // 1. Check for Double Enter
-    if (e.key === 'Enter') {
-        const now = Date.now();
-        const diff = now - lastEnterTime;
+    if (e.key !== 'Enter') return;
 
-        if (diff < 450 && diff > 50) { 
-            console.log("[!] ACCESS_SEQUENCE_CONFIRMED");
-            const zone = document.getElementById('secret-input-zone');
-            
-            if (zone) {
-                zone.classList.toggle('primed');
-                
-                // Auto-focus the password box
-                if (zone.classList.contains('primed')) {
-                    setTimeout(() => {
-                        const pCode = document.getElementById('p-code');
-                        if (pCode) pCode.focus();
-                    }, 150);
-                }
-            }
-        }
-        lastEnterTime = now;
-    }
+    // ❗ ignore if typing in inputs
+ const active = document.activeElement;
 
-    // 2. The Escape/Panic Key
-    if (e.key === 'Escape') {
+// only block if it's YOUR inputs
+if (
+    active &&
+    (active.id === "cmd-input" ||
+     active.id === "p-code" ||
+     active.id === "u-name" ||
+     active.id === "edit-area")
+) return;
+
+    const now = Date.now();
+    const diff = now - window.lastEnterTime;
+
+    if (diff < 600) {
         const zone = document.getElementById('secret-input-zone');
-        if (zone && zone.classList.contains('primed')) {
-            zone.classList.remove('primed');
-            console.log("[!] SIDEBAR_HIDDEN");
+
+        if (zone) {
+            zone.classList.toggle('primed');
+
+            if (zone.classList.contains('primed')) {
+                setTimeout(() => {
+                    document.getElementById('p-code')?.focus();
+                }, 100);
+            }
         }
     }
-}, true); // The 'true' here makes it a "Capturing" listener - it hits this BEFORE the inputs
 
+    window.lastEnterTime = now;
+});
 
-    function handleUser() { 
-        sessionUser = document.getElementById('u-name').value.trim(); 
-        if(!sessionUser) return;
-        document.getElementById('step-username').style.display='none'; 
-        document.getElementById('step-login').style.display='block'; 
-        document.getElementById('user-greeting').innerText = `ID: ${sessionUser.toUpperCase()}`; 
-    }
+// --- USER HANDLING ---
+window.handleUser = function() { 
+    window.sessionUser = document.getElementById('u-name').value.trim(); 
+    if(!window.sessionUser) return;
+    document.getElementById('step-username').style.display='none'; 
+    document.getElementById('step-login').style.display='block'; 
+    document.getElementById('user-greeting').innerText = `ID: ${window.sessionUser.toUpperCase()}`; 
+}
 
-    function handleAuth() { 
-        document.getElementById('step-login').style.display='none'; 
-        document.getElementById('auth-only').style.display='block'; 
-        document.getElementById('user-display').innerText = `SESSION // ${sessionUser.toUpperCase()}`; 
-        document.getElementById('game-view').style.display="flex"; 
-        document.getElementById('boring-view').style.display="none"; 
-        startMatrix(); 
-        loadModules(); 
-        renderFE(); 
-    }
+window.handleAuth = function() { 
+    document.getElementById('edge-swipe-zone').classList.add('active');
+    document.getElementById('step-login').style.display='none'; 
+    document.getElementById('auth-only').style.display='block'; 
+    document.getElementById('user-display').innerText = `SESSION // ${window.sessionUser.toUpperCase()}`; 
+    document.getElementById('game-view').style.display="flex"; 
+    document.getElementById('boring-view').style.display="none"; 
+    window.startMatrix(); 
+    window.loadModules(); 
+    window.renderFE(); 
+}
 
-    function lockSystem() {
-        document.getElementById('panic-white').classList.add('active');
-        setTimeout(() => { location.reload(); }, 500);
-    }
+// --- SYSTEM LOCK ---
+window.lockSystem = function() {
+    document.getElementById('panic-white').classList.add('active');
+    setTimeout(() => { location.reload(); }, 500);
+}
 
-    // --- WINDOW MANAGEMENT ---
-    function toggleWindow(id) { 
-        let el = document.getElementById(id); 
-        el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
-        if(el.style.display === 'block') { highestZ++; el.style.zIndex = highestZ; }
-    }
+// --- WINDOW MANAGEMENT ---
+window.toggleWindow = function(id) { 
+    let el = document.getElementById(id); 
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
+    if(el.style.display === 'block') { window.highestZ++; el.style.zIndex = window.highestZ; }
+}
 
-    document.querySelectorAll('.window-header').forEach(header => {
-        header.onmousedown = function(e) {
-            if(e.target.innerText === 'X') return; // Don't drag if clicking X
-            let panel = header.parentElement;
-            highestZ++; panel.style.zIndex = highestZ;
-            if (panel.style.width === '100%') return; 
-            let rect = panel.getBoundingClientRect();
-            let shiftX = e.clientX - rect.left, shiftY = e.clientY - rect.top;
-            function moveAt(pageX, pageY) {
-                panel.style.left = (pageX - shiftX) + 'px';
-                panel.style.top = (pageY - shiftY) + 'px';
-                panel.style.bottom = 'auto'; panel.style.right = 'auto'; 
-            }
-            function onMouseMove(ev) { moveAt(ev.pageX, ev.pageY); }
-            document.addEventListener('mousemove', onMouseMove);
-            document.onmouseup = function() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.onmouseup = null;
-            };
+document.querySelectorAll('.window-header').forEach(header => {
+    header.onmousedown = function(e) {
+        if (e.target.closest('.win-ctrls')) return;
+        let panel = header.parentElement;
+        window.highestZ++; panel.style.zIndex = window.highestZ;
+        if (panel.style.width === '100%') return; 
+        let rect = panel.getBoundingClientRect();
+        let shiftX = e.clientX - rect.left, shiftY = e.clientY - rect.top;
+        function moveAt(pageX, pageY) {
+            panel.style.left = (pageX - shiftX) + 'px';
+            panel.style.top = (pageY - shiftY) + 'px';
+            panel.style.bottom = 'auto'; panel.style.right = 'auto'; 
+        }
+        function onMouseMove(ev) { moveAt(ev.pageX, ev.pageY); }
+        document.addEventListener('mousemove', onMouseMove);
+        document.onmouseup = function() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.onmouseup = null;
         };
-    });
+    };
+});
 
-    // --- FILE SYSTEM ---
-    function getDir(p) { 
-        let c = vfs; 
-        p.forEach(x => { if (c[x] && c[x].children) c = c[x].children; else if(c[x]) c = c[x]; }); 
-        return c; 
-    }
+// --- FILE SYSTEM ---
+window.getDir = function(p) { 
+    let c = window.vfs; 
+    p.forEach(x => { if (c[x] && c[x].children) c = c[x].children; else if(c[x]) c = c[x]; }); 
+    return c; 
+}
 
-    function saveVFS() { localStorage.setItem('ghost_vfs', JSON.stringify(vfs)); renderFE(); }
+window.saveVFS = function() { 
+    localStorage.setItem('ghost_vfs', JSON.stringify(window.vfs)); 
+    window.renderFE(); 
+}
 
-    function renderFE() {
+window.renderFE = function() {
     const main = document.getElementById("fe-main"); 
     main.innerHTML = "";
-    let currentDir = getDir(currentPath);
+    let currentDir = window.getDir(window.currentPath);
 
-    // Back Button Logic
-    if (currentPath.length > 1) {
+    if (window.currentPath.length > 1) {
         let back = document.createElement('div'); 
         back.className = "fe-item";
         back.innerHTML = `<div class="fe-icon icon-folder" style="filter:hue-rotate(180deg)"></div><div class="fe-label">..BACK</div>`;
-        back.onclick = () => { currentPath.pop(); renderFE(); }; 
+        back.onclick = () => { window.currentPath.pop(); window.renderFE(); }; 
         main.appendChild(back);
     }
 
@@ -425,171 +521,145 @@ window.addEventListener('keydown', (e) => {
         let div = document.createElement('div'); 
         div.className = "fe-item";
         div.setAttribute('draggable', 'true');
-        
-        // Drag Start: Essential for Shredder & Folders
         div.ondragstart = (e) => { 
             e.dataTransfer.setData("text/plain", name); 
             e.dataTransfer.effectAllowed = "move";
         };
 
-        // Folder-on-Folder / File-on-Folder Drop Logic
-        if(item.type === 'dir') {
-            div.ondragover = (e) => e.preventDefault(); // Allow dropping here
-            div.ondrop = (e) => {
-                e.preventDefault();
-                const draggedName = e.dataTransfer.getData("text/plain");
-                if(draggedName && draggedName !== name) {
-                    item.children[draggedName] = currentDir[draggedName];
-                    delete currentDir[draggedName];
-                    saveVFS();
-                    printToCMD(`$sys: Moved [${draggedName}] into [${name}]`);
-                }
-            };
-        }
-
-        div.innerHTML = `
-            <div class="fe-icon ${item.type==='dir'?'icon-folder':'icon-file'}"></div>
-            <div class="fe-label" contenteditable="true" onblur="renameItem('${name}', this.innerText)">${name}</div>
-        `;
-
-        // Navigation and Editor Trigger
-        div.ondblclick = () => { 
-            if(item.type === 'dir') { 
-                currentPath.push(name); 
-                renderFE(); 
-            } else { 
-                openEditor(name, item.content || ""); 
-            }
-        };
-        main.appendChild(div);
-    });
-}
-
-        // This ALLOWS folders to receive other files
         if(item.type === 'dir') {
             div.ondragover = (e) => e.preventDefault();
             div.ondrop = (e) => {
                 e.preventDefault();
                 const draggedName = e.dataTransfer.getData("text/plain");
                 if(draggedName && draggedName !== name) {
-                    // Move the file into this folder
                     item.children[draggedName] = currentDir[draggedName];
                     delete currentDir[draggedName];
-                    saveVFS();
-                    printToCMD(`$sys: Moved ${draggedName} into ${name}`);
+                    window.saveVFS();
+                    window.printToCMD(`$sys: Moved ${draggedName} into ${name}`);
                 }
             };
         }
 
         div.innerHTML = `<div class="fe-icon ${item.type==='dir'?'icon-folder':'icon-file'}"></div>
-                         <div class="fe-label" contenteditable="true" onblur="renameItem('${name}', this.innerText)">${name}</div>`;
+                         <div class="fe-label" contenteditable="true" onblur="window.renameItem('${name}', this.innerText)">${name}</div>`;
         
         div.ondblclick = () => { 
-            if(item.type === 'dir') { currentPath.push(name); renderFE(); }
-            else { openEditor(name, item.content || ""); }
+            if(item.type === 'dir') { window.currentPath.push(name); window.renderFE(); }
+            else { window.openEditor(name, item.content || ""); }
         };
         main.appendChild(div);
     });
 }
 
-    function createFolder() { 
-        let n = "New_Dir_" + Math.floor(Math.random()*100); 
-        getDir(currentPath)[n] = { type: "dir", children: {} }; saveVFS(); 
-    }
+window.createFolder = function() { 
+    let n = "New_Dir_" + Math.floor(Math.random()*100); 
+    window.getDir(window.currentPath)[n] = { type: "dir", children: {} }; window.saveVFS(); 
+}
 
-    function createFile() { 
-        let n = "Note_" + Math.floor(Math.random()*100) + ".txt"; 
-        getDir(currentPath)[n] = { type: "file", content: "" }; saveVFS(); 
-    }
+window.createFile = function() { 
+    let n = "Note_" + Math.floor(Math.random()*100) + ".txt"; 
+    window.getDir(window.currentPath)[n] = { type: "file", content: "" }; window.saveVFS(); 
+}
 
-    function renameItem(old, n) { 
-        let dir = getDir(currentPath); if(n && n !== old) { dir[n] = dir[old]; delete dir[old]; saveVFS(); } 
-    }
+window.renameItem = function(old, n) { 
+    let dir = window.getDir(window.currentPath); 
+    if(n && n !== old) { dir[n] = dir[old]; delete dir[old]; window.saveVFS(); } 
+}
 
-    /// Updated AllowDrop to be more aggressive
 window.allowDrop = function(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-};
+}
 
-// Updated Shredder logic
-window.dropToTrash = function(e) {
+window.dropToTrash = function(e, el) {
     e.preventDefault();
-    this.classList.remove('drag-over');
-    
-    // Get the ID/Name of the dragged item
+    if (!el) el = document.getElementById('trash-zone');
+    el.classList.remove('drag-over');
+
     const name = e.dataTransfer.getData("text/plain");
-    const dir = getDir(currentPath);
-    
-    if (name && dir[name]) {
-        if (confirm(`SHRED ${name.toUpperCase()}?`)) {
-            delete dir[name];
-            saveVFS();
-            printToCMD(`$sys: ${name} eradicated.`);
-        }
-    } else {
-        printToCMD("$err: Shredder sequence failed - Item not found.");
+
+    if (name) {
+        window.printToCMD(`$sys: Locating ${name}...`);
+
+        setTimeout(() => {
+            const success = window.findAndDelete(window.vfs.root.children, name);
+
+            if (success) {
+                window.saveVFS();
+                window.printToCMD(`$sys: ${name} eradicated.`);
+            } else {
+                window.printToCMD(`$err: ${name} not found.`);
+            }
+        }, 200);
     }
 };
 
-   // --- TERMINAL LOGIC ---
-function runCommand(v) {
-    // Split the command from the rest of the string so we can handle spaces in URLs/Notes
+
+
+// --- TERMINAL ---
+window.runCommand = function(v) {
     let args = v.trim().split(/\s+/);
     let cmd = args[0].toLowerCase();
     let val = args.slice(1).join(" "); 
-    
-    printToCMD(`$ghost> ${v}`);
+    window.printToCMD(`$ghost> ${v}`);
 
     switch(cmd) {
-        case "help":
-            printToCMD(`
-================================
- ❖ CORE PROTOCOLS ❖
-================================
- • scan [url]   : Probe target origin
- • save [text]  : Commit note to buffer
- • notes        : Open VFS Explorer
- • import       : Load backup JSON
- • export       : Generate backup JSON
- • wipe         : Purge note buffer
- • lock         : Engage panic screen
- • logout       : Terminate session
- • clr          : Clear terminal logs
- • zoom [val]   : Scale active frame
- • theme [col]  : green | red | blue
-================================`);
+       case "help":
+            const helpCommands = [
+                "scan [url]   : Probe target origin",
+                "save [text]  : Commit note to buffer",
+                "notes        : Open VFS Explorer",
+                "import       : Load backup JSON",
+                "export       : Generate backup JSON",
+                "wipe         : Purge note buffer",
+                "lock         : Engage panic screen",
+                "logout       : Terminate session",
+                "clr          : Clear terminal logs",
+                "zoom [val]   : Scale active frame",
+                "theme [col]  : green | red | blue| purple | gold [or] theme custom"
+            ];
+            
+            // Loop through the array and print each line individually
+            helpCommands.forEach(cmd => window.printToCMD(cmd));
             break;
-        case "scan": 
-            if(val) executeLoad(val); 
-            else printToCMD("$err: Missing target URL.");
-            break;
-        case "save":
+        case "scan": if(val) window.executeLoad(val); else window.printToCMD("$err: Missing target URL."); break;
+        case "save": 
             if(val) {
                 document.getElementById('edit-area').value += val + "\n";
-                printToCMD(`$sys: '${val}' saved to buffer.`);
-            } else printToCMD("$err: Missing text payload.");
+                window.printToCMD(`$sys: '${val}' saved to buffer.`);
+            } else window.printToCMD("$err: Missing text payload.");
             break;
         case "theme": 
-            const colors = {green:"#00FF00", red:"#FF4444", blue:"#00FFFF", gold:"#FFD700", purple:"#A020F0"};
-            if(colors[val]) {
-                document.documentElement.style.setProperty('--main-color', colors[val]);
-                printToCMD(`$sys: Theme overriden to ${val.toUpperCase()}`);
-            } else {
-                printToCMD("$err: Unknown hex/color code.");
-            }
-            break;
+    const colors = {
+        green:"#00FF00", 
+        red:"#FF4444", 
+        blue:"#00FFFF", 
+        gold:"#FFD700", 
+        purple:"#A020F0"
+    };
+
+    if (val === "custom") {
+        themePicker.click();
+        window.printToCMD("$sys: Launching color picker...");
+    } 
+    else if(colors[val]) {
+        document.documentElement.style.setProperty('--main-color', colors[val]);
+        window.printToCMD(`$sys: Theme overridden to ${val.toUpperCase()}`);
+    } 
+    else {
+        window.printToCMD("$err: Unknown theme. Use preset or 'theme custom'");
+    }
+    break;
         case "zoom": 
             if(val) { 
-                currentZoom = parseFloat(val); 
-                document.getElementById('game-frame').style.transform = `scale(${currentZoom})`; 
-                printToCMD(`$sys: Viewport scaled to ${currentZoom}x`);
+                window.currentZoom = parseFloat(val); 
+                document.getElementById('game-frame').style.transform = `scale(${window.currentZoom})`; 
+                window.printToCMD(`$sys: Viewport scaled to ${window.currentZoom}x`);
             } 
             break;
         case "export":
-            printToCMD("$sys: Exporting Virtual File System...");
-            // Simple backup trigger
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vfs));
+            window.printToCMD("$sys: Exporting Virtual File System...");
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.vfs));
             let dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
             dlAnchorElem.setAttribute("download", "ghost_vfs_backup.json");
@@ -597,151 +667,556 @@ function runCommand(v) {
             break;
         case "import":
             document.getElementById('file-import').click();
-            printToCMD("$sys: Awaiting file injection...");
+            window.printToCMD("$sys: Awaiting file injection...");
             break;
         case "clr": 
             document.getElementById("cmd-output").innerText = "Ghost_Terminal [Restored]\nType 'help' for commands."; 
             break;
-        case "logout": 
-            location.reload(); 
-            break;
-        case "lock": 
-            lockSystem(); 
-            break;
+        case "logout": location.reload(); break;
+        case "lock": window.lockSystem(); break;
         case "wipe": 
             document.getElementById('edit-area').value = ""; 
-            printToCMD("$sys: Text buffer purged."); 
+            window.printToCMD("$sys: Text buffer purged."); 
             break;
         case "notes": 
-            toggleWindow('fe-panel'); 
-            printToCMD("$sys: Bypassing VFS security..."); 
+            window.toggleWindow('fe-panel'); 
+            window.printToCMD("$sys: Bypassing VFS security..."); 
             break;
-        default: 
-            if (cmd) printToCMD(`$err: Unknown protocol: ${cmd}`);
+        default: if (cmd) window.printToCMD(`$err: Unknown protocol: ${cmd}`);
     }
 }
 
-    function loadModules() {
-        const m = document.getElementById('menu-container'); m.innerHTML = "";
-        let v = JSON.parse(localStorage.getItem('ghost_vault')) || {};
-        (v[sessionUser] || []).forEach((g, idx) => {
-            let d = document.createElement('div'); d.className = "game-card"; 
-            d.innerHTML = `${g.name.toUpperCase()} <span class="card-del" onclick="delMod(${idx}, event)">X</span>`;
-            d.onclick = () => executeLoad(g.url); m.appendChild(d);
+// --- MODULES ---
+window.loadModules = function() {
+    const m = document.getElementById('menu-container'); m.innerHTML = "";
+    let v = JSON.parse(localStorage.getItem('ghost_vault')) || {};
+    (v[window.sessionUser] || []).forEach((g, idx) => {
+        let d = document.createElement('div'); d.className = "game-card"; 
+        d.innerHTML = `${g.name.toUpperCase()} <span class="card-del" onclick="window.delMod(${idx}, event)">X</span>`;
+        d.onclick = () => window.executeLoad(g.url); m.appendChild(d);
+    });
+}
+
+window.executeLoad = function(u) { 
+    if(!u.startsWith('http')) u = 'https://' + u; 
+    document.getElementById('game-frame').src = u; 
+    document.getElementById('game-container').style.display = 'block'; 
+    document.getElementById('menu-container').style.display = 'none'; 
+    document.getElementById('back-to-menu').style.display = 'block'; 
+}
+
+window.exitGame = function() { 
+    document.getElementById('game-frame').src = "about:blank"; 
+    document.getElementById('game-container').style.display = 'none'; 
+    document.getElementById('menu-container').style.display = 'grid'; 
+    document.getElementById('back-to-menu').style.display = 'none'; 
+}
+
+// --- MATRIX EFFECT ---
+window.startMatrix = function() {
+    const c = document.getElementById('matrix-bg'); const ctx = c.getContext('2d');
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    const drops = Array(Math.floor(c.width/14)).fill(1);
+    setInterval(() => {
+        ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+        ctx.font = "14px monospace";
+        drops.forEach((y, i) => {
+            ctx.fillText(Math.random() > 0.5 ? "1" : "0", i*14, y*14);
+            if(y*14 > c.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
         });
-    }
+    }, 33);
+}
 
-    function executeLoad(u) { 
-        if(!u.startsWith('http')) u = 'https://' + u; 
-        document.getElementById('game-frame').src = u; 
-        document.getElementById('game-container').style.display = 'block'; 
-        document.getElementById('menu-container').style.display = 'none'; 
-        document.getElementById('back-to-menu').style.display = 'block'; 
-    }
-
-    function exitGame() { 
-        document.getElementById('game-frame').src = "about:blank"; 
-        document.getElementById('game-container').style.display = 'none'; 
-        document.getElementById('menu-container').style.display = 'grid'; 
-        document.getElementById('back-to-menu').style.display = 'none'; 
-    }
-
-    function startMatrix() {
-        const c = document.getElementById('matrix-bg'); const ctx = c.getContext('2d');
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        const drops = Array(Math.floor(c.width/14)).fill(1);
-        setInterval(() => {
-            ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
-            ctx.font = "14px monospace";
-            drops.forEach((y, i) => {
-                ctx.fillText(Math.random() > 0.5 ? "1" : "0", i*14, y*14);
-                if(y*14 > c.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
-        }, 33);
-    }
-
-    document.getElementById('p-code').onkeydown = (e) => { if(e.key === 'Enter') verifyPass(); };
-    document.getElementById('u-name').onkeydown = (e) => { if(e.key === 'Enter') handleUser(); };
-// --- WINDOW FULLSCREEN LOGIC ---
+// --- FULLSCREEN TOGGLE ---
 window.toggleFS = function(id) {
     let panel = document.getElementById(id);
-    
-    // If it is NOT fullscreen yet
     if (!panel.dataset.fs || panel.dataset.fs === "false") {
-        // Save current dimensions to data attributes
         panel.dataset.origTop = panel.style.top || "50px";
         panel.dataset.origLeft = panel.style.left || "50px";
         panel.dataset.origWidth = panel.style.width || "auto";
         panel.dataset.origHeight = panel.style.height || "auto";
-
-        // Snap to fullscreen
         panel.style.top = "0px";
         panel.style.left = "0px";
         panel.style.width = "100vw";
         panel.style.height = "100vh";
         panel.dataset.fs = "true";
     } else {
-        // Restore to original size
         panel.style.top = panel.dataset.origTop;
         panel.style.left = panel.dataset.origLeft;
         panel.style.width = panel.dataset.origWidth;
         panel.style.height = panel.dataset.origHeight;
         panel.dataset.fs = "false";
     }
-};
-
-function openEditor(name, content) {
-    window.openFileName = name; // Force to global scope
-    const area = document.getElementById('edit-area');
-    const editor = document.getElementById('text-editor');
-    
-    area.value = content;
-    editor.style.display = 'block';
-    editor.style.zIndex = ++highestZ;
-    
-    printToCMD(`$sys: Editing ${name}...`);
 }
 
-function saveText() {
+// --- TEXT EDITOR ---
+window.openEditor = function(name, content) {
+    window.openFileName = name;
+    const area = document.getElementById('edit-area');
+    const editor = document.getElementById('text-editor');
+    area.value = content;
+    editor.style.display = 'block';
+    editor.style.zIndex = ++window.highestZ;
+    window.printToCMD(`$sys: Editing ${name}...`);
+}
+
+window.saveText = function() {
     const name = window.openFileName;
     const content = document.getElementById('edit-area').value;
-    const dir = getDir(currentPath);
+    const dir = window.getDir(window.currentPath);
 
     if (name && dir[name]) {
-        // Save to Virtual File System
         dir[name].content = content;
-        
-        // Handle URL Injection: Name | URL
+
         if (content.includes('|')) {
             let vault = JSON.parse(localStorage.getItem('ghost_vault') || "{}");
-            if (!vault[sessionUser]) vault[sessionUser] = [];
+            if (!vault[window.sessionUser]) vault[window.sessionUser] = [];
             
             const lines = content.split('\n');
             lines.forEach(line => {
                 if (line.includes('|')) {
                     const [title, url] = line.split('|').map(s => s.trim());
-                    if (title && url) {
-                        // Check for duplicates
-                        if (!vault[sessionUser].some(m => m.url === url)) {
-                            vault[sessionUser].push({ name: title, url: url });
-                            printToCMD(`$sys: Module [${title}] injected.`);
-                        }
+                    if (title && url && !vault[window.sessionUser].some(m => m.url === url)) {
+                        vault[window.sessionUser].push({ name: title, url: url });
+                        window.printToCMD(`$sys: Module [${title}] injected.`);
                     }
                 }
             });
             localStorage.setItem('ghost_vault', JSON.stringify(vault));
-            loadModules(); // Refresh main screen buttons
+            window.loadModules();
         }
 
-        saveVFS();
-        closeEditor();
-        printToCMD(`$sys: ${name} saved to disk.`);
+        window.saveVFS();
+        window.closeEditor();
+        window.printToCMD(`$sys: ${name} saved to disk.`);
+    } else window.printToCMD("$err: Save failed. Buffer lost.");
+}
+
+// --- VERIFY PASSCODE ---
+window.verifyPass = function() {
+    const val = document.getElementById('p-code').value;
+    if (val === "ghost") {
+        document.getElementById('step-passcode').style.display = 'none';
+        document.getElementById('step-username').style.display = 'block';
+        console.log("[✓] PASSCODE ACCEPTED");
+        window.printToCMD("$sys: Passcode accepted.");
     } else {
-        printToCMD("$err: Save failed. Buffer lost.");
+        console.log("[!] BAD PASSCODE");
+        window.printToCMD("$err: Access denied. Bad passcode.");
+        document.getElementById('p-code').value = "";
     }
 }
+window.printToCMD = function(msg) {
+    const output = document.getElementById('cmd-output');
+    if (!output) return;
+
+    const line = document.createElement("div");
+    line.innerHTML = "• " + msg;
+
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+};
+window.closeEditor = function() {
+    const editor = document.getElementById('text-editor');
+    editor.style.display = 'none';
+    window.openFileName = null;
+};
+
+// --- INPUT EVENTS ---
+document.getElementById('p-code').onkeydown = (e) => { if(e.key === 'Enter') window.verifyPass(); };
+document.getElementById('u-name').onkeydown = (e) => { if(e.key === 'Enter') window.handleUser(); };
+document.getElementById('cmd-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const val = this.value;
+        if (val.trim() !== "") {
+            window.runCommand(val);
+        }
+        this.value = "";
+    }
+});
+window.exportData = function() {
+    try {
+        const dataStr = "data:text/json;charset=utf-8," + 
+            encodeURIComponent(JSON.stringify(window.vfs, null, 2));
+
+        const dl = document.createElement('a');
+        dl.setAttribute("href", dataStr);
+        dl.setAttribute("download", "ghost_vfs_backup.json");
+
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+
+        window.printToCMD("$sys: Export successful.");
+    } catch (err) {
+        console.error(err);
+        window.printToCMD("$err: Export failed.");
+    }
+};
+window.importData = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            window.vfs = data;
+            window.saveVFS();
+            window.printToCMD("$sys: Import successful.");
+        } catch (err) {
+            window.printToCMD("$err: Invalid file.");
+        }
+    };
+    reader.readAsText(file);
+};
+window.dropFile = function(e) {
+    e.preventDefault();
+
+    const name = e.dataTransfer.getData("text/plain");
+    const dir = window.getDir(window.currentPath);
+
+    if (name && dir[name]) {
+        window.printToCMD(`$sys: ${name} dropped.`);
+    }
+};
+let panicTimeout = null;
+
+// ESC toggle for panic white with red bar hide/show
+let isPanicActive = false;
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === "Escape") {
+        const panic = document.getElementById('panic-white');
+        const redBar = document.getElementById('edge-swipe-zone');
+
+        // toggle panic
+        isPanicActive = !isPanicActive;
+
+        if (isPanicActive) {
+            panic.classList.add('active');
+            // hide red bar while white overlay is on
+            redBar.style.visibility = 'hidden';
+        } else {
+            panic.classList.remove('active');
+            // bring red bar back
+            redBar.style.visibility = 'visible';
+        }
+    }
+});
+window.delMod = function(index, e) {
+    // stop click from triggering parent
+    if (e) e.stopPropagation();
+
+    let vault = JSON.parse(localStorage.getItem('ghost_vault')) || {};
+
+    if (!vault[window.sessionUser]) return;
+
+    const removed = vault[window.sessionUser].splice(index, 1);
+
+    localStorage.setItem('ghost_vault', JSON.stringify(vault));
+
+    window.loadModules();
+
+    if (removed[0]) {
+        window.printToCMD(`$sys: Module [${removed[0].name}] deleted.`);
+    }
+};
+window.findAndDelete = function(dir, targetName) {
+    for (let key in dir) {
+        if (key === targetName) {
+            delete dir[key];
+            return true;
+        }
+
+        if (dir[key].type === "dir") {
+            const found = window.findAndDelete(dir[key].children, targetName);
+            if (found) return true;
+        }
+    }
+    return false;
+};
+window.decodeYT = function() {
+    const input = document.getElementById('yt-url').value.trim();
+    if (!input) {
+        window.printToCMD("$err: No URL provided.");
+        return;
+    }
+
+    let videoId = null;
+    let playlistId = null;
+
+    if (input.includes("list=")) {
+        playlistId = input.split("list=")[1].split("&")[0];
+    }
+
+    if (input.includes("youtube.com/watch?v=")) {
+        videoId = input.split("v=")[1].split("&")[0];
+    } else if (input.includes("youtu.be/")) {
+        videoId = input.split("youtu.be/")[1].split("?")[0];
+    }
+
+    let embedUrl = null;
+
+    if (playlistId && videoId) {
+        embedUrl = `https://www.youtube.com/embed/${videoId}?list=${playlistId}`;
+    } else if (playlistId) {
+        embedUrl = `https://www.youtube.com/embed/videoseries?list=${playlistId}`;
+    } else if (videoId) {
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    if (!embedUrl) {
+        window.printToCMD("$err: Invalid YouTube URL.");
+        return;
+    }
+
+    window.printToCMD("$sys: Decoding media stream...");
+    window.executeLoad(embedUrl);
+
+    // Detect failure after delay
+    setTimeout(() => {
+        window.detectYTFailure(embedUrl);
+    }, 2500);
+
+    document.getElementById('yt-url').value = "";
+};
+window.detectYTFailure = function(url) {
+    const frame = document.getElementById('game-frame');
+
+    try {
+        // If iframe didn't load correctly or is blank-ish
+        if (!frame.src || frame.src === "about:blank") {
+            throw new Error("Load failed");
+        }
+
+        // We can't read iframe content (cross-origin),
+        // so we simulate detection based on known failure patterns
+        if (url.includes("videoseries")) {
+            // playlists are more likely to fail if private
+            window.printToCMD("$sys: Verifying playlist access...");
+            
+            setTimeout(() => {
+                window.printToCMD("$err: ACCESS BLOCKED — PLAYLIST PRIVATE OR RESTRICTED");
+            }, 1200);
+        }
+
+    } catch (err) {
+        window.printToCMD("$err: MEDIA LOAD FAILURE");
+    }
+};
+const themePicker = document.getElementById("themePicker");
+
+if (themePicker) {
+    themePicker.addEventListener("input", function () {
+        document.documentElement.style.setProperty('--main-color', this.value);
+    });
+}
+
+window.triggerExit = function() {
+    const game = document.getElementById('game-view');
+    const boring = document.getElementById('boring-view');
+    const edgeZone = document.getElementById('edge-swipe-zone');   // 🔴 red bar
+    const secretZone = document.getElementById('secret-input-zone'); // 🟢 green bar
+    const aiPanel = document.getElementById('ghost-ai-panel');     // 👻 AI panel
+
+    if (!game || !boring) return;
+
+    console.log("🚪 EXIT TRIGGERED");
+
+    // show boring page underneath
+    boring.style.display = "block";
+
+    // animation
+    game.style.transform = "translateX(-85%)";
+    game.style.opacity = "0.7";
+
+    setTimeout(() => {
+        // 🔥 FULL RESET
+        window.sessionUser = null;
+
+        // hide game
+        game.style.display = "none";
+        game.style.transform = "";
+        game.style.opacity = "";
+
+        // ❗ hide red bar
+        if (edgeZone) edgeZone.classList.remove('active');
+
+        // ❗ hide green bar
+        if (secretZone) secretZone.classList.remove('primed');
+
+        // ❗ hide AI panel
+        if (aiPanel) aiPanel.style.display = 'none';
+
+        // reset login flow
+        document.getElementById('step-passcode').style.display = 'block';
+        document.getElementById('step-username').style.display = 'none';
+        document.getElementById('step-login').style.display = 'none';
+        document.getElementById('auth-only').style.display = 'none';
+
+        // reset inputs
+        document.getElementById('p-code').value = "";
+        document.getElementById('u-name').value = "";
+
+        console.log("✅ SYSTEM RESET COMPLETE");
+    }, 300);
+};
+document.addEventListener("DOMContentLoaded", () => {
+    const edgeZone = document.getElementById("edge-swipe-zone");
+
+    if (!edgeZone) {
+        console.log("❌ edgeZone NOT FOUND");
+        return;
+    }
+
+    console.log("✅ edgeZone FOUND");
+
+    edgeZone.addEventListener("click", () => {
+        console.log("🔥 EDGE CLICKED");
+        triggerExit();
+    });
+});
+// --- SECRET KONAMI RAINBOW THEME ---
+window.rainbowActive = false;
+window.rainbowHue = 0;
+window.rainbowLastColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+
+// Toggle function
+window.toggleRainbowTheme = function() {
+    window.rainbowActive = !window.rainbowActive;
+
+    if (window.rainbowActive) {
+        window.rainbowLastColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+        function rainbowLoop() {
+            if (!window.rainbowActive) {
+                document.documentElement.style.setProperty('--main-color', window.rainbowLastColor);
+                return;
+            }
+            document.documentElement.style.setProperty('--main-color', `hsl(${window.rainbowHue}, 100%, 50%)`);
+            window.rainbowHue = (window.rainbowHue + 8) % 360; // faster cycling
+            requestAnimationFrame(rainbowLoop);
+        }
+        requestAnimationFrame(rainbowLoop);
+    } else {
+        document.documentElement.style.setProperty('--main-color', window.rainbowLastColor);
+    }
+}
+
+// --- SECRET CODE: W,W,S,S,D,A,1 ---
+window.secretCode = ['w','w','s','s','d','a','1'];
+window.secretIndex = 0;
+
+window.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if (key === window.secretCode[window.secretIndex]) {
+        window.secretIndex++;
+        if (window.secretIndex === window.secretCode.length) {
+            // Full code entered
+            window.toggleRainbowTheme();
+            window.secretIndex = 0; // reset for next toggle
+        }
+    } else {
+        window.secretIndex = 0; // reset if wrong key
+    }
+});
+
+window.toggleGhostAI = function() {
+    const panel = document.getElementById('ghost-ai-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Secret key combo
+let ghostAISequence = [];
+const secretSequence = ['p','l','s','a','i'];
+
+document.addEventListener('keydown', (e) => {
+    ghostAISequence.push(e.key.toLowerCase());
+    
+    if (ghostAISequence.join(',').includes(secretSequence.join(','))) {
+        window.toggleGhostAI();  // show/hide panel
+        ghostAISequence = [];
+    }
+    
+    if (ghostAISequence.length > 10) ghostAISequence.shift();
+});
+
+window.ghostAIQuery = async function() {
+    const input = document.getElementById('ghost-ai-query');
+    const responseDiv = document.getElementById('ghost-ai-response');
+    const g = document.getElementById('ghost-ai-g');
+    const query = input.value.trim();
+    if (!query) return;
+
+    // Start spinning animation
+    g.style.animation = 'spin 1s linear infinite';
+    responseDiv.innerText = 'Synthesizing intelligence...';
+
+    let definitionChunks = [];
+    let summaryChunks = [];
+    let relatedChunks = [];
+
+    try {
+        // 📖 Dictionary API
+        try {
+            const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`);
+            if (dictRes.ok) {
+                const dictData = await dictRes.json();
+                dictData[0].meanings.forEach(m => {
+                    m.definitions.slice(0,2).forEach(d => {
+                        definitionChunks.push(d.definition);
+                    });
+                });
+            }
+        } catch {}
+
+        // 🌐 Wikipedia summary
+        try {
+            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+            const wikiData = await wikiRes.json();
+            if (wikiData.extract) summaryChunks.push(wikiData.extract);
+        } catch {}
+
+        // 🔎 DuckDuckGo Instant Answer
+        try {
+            const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_redirect=1&skip_disambig=1`);
+            const ddgData = await ddgRes.json();
+            if (ddgData.AbstractText) summaryChunks.push(ddgData.AbstractText);
+        } catch {}
+
+        // 🧠 Datamuse related words
+        try {
+            const wordRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(query)}`);
+            const wordData = await wordRes.json();
+            if (wordData.length > 0) {
+                relatedChunks.push(wordData.slice(0,5).map(w => w.word).join(", "));
+            }
+        } catch {}
+
+        // === Combine & format into labeled sections ===
+        let finalText = "";
+
+        if (definitionChunks.length) finalText += `📖 Definition:\n${definitionChunks.join("; ")}\n\n`;
+        if (summaryChunks.length) finalText += `🌐 Summary:\n${summaryChunks.join(" ")}\n\n`;
+        if (relatedChunks.length) finalText += `🧠 Related Concepts:\n${relatedChunks.join("; ")}\n\n`;
+
+        responseDiv.innerText = finalText || `No strong synthesis for "${query}".`;
+
+    } catch (err) {
+        responseDiv.innerText = 'AI synthesis error.';
+    } finally {
+        g.style.animation = ''; // stop spinning
+    }
+
+    input.value = "";
+};
+
+// Trigger query on Enter
+document.getElementById('ghost-ai-query').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window.ghostAIQuery();
+});
 </script>
 </body>
 </html>
