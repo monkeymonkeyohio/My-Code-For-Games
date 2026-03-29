@@ -29,7 +29,6 @@ body, html {
     color: var(--main-color);
 }
 
-/* Layer 1: The "Boring" Decoy View */
 #boring-view { 
     padding: 40px 10%; 
     color: #444; 
@@ -40,7 +39,6 @@ body, html {
     z-index: 1; 
 }
 
-/* Layer 2: Visual Backgrounds */
 #matrix-bg { 
     position: fixed; 
     top: 0; 
@@ -71,7 +69,7 @@ body, html {
     position: fixed;
     top: 0;
     left: 0;
-    width: 18px; /* thin but usable */
+    width: 18px; 
     height: 100%;
     z-index: 100000;
 
@@ -79,7 +77,7 @@ body, html {
     opacity: 0;
     transition: opacity 0.2s ease, width 0.2s ease;
 
-    pointer-events: none; /* disabled by default */
+    pointer-events: none;
 }
 
 #edge-swipe-zone.active {
@@ -93,7 +91,6 @@ body, html {
     width: 28px;
 }
 
-/* Layer 3: Main System Interface */
 #game-view { 
     display: none; 
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
@@ -119,7 +116,6 @@ body, html {
     letter-spacing: 1px;
 }
 
-/* Layer 4: The Sidebar (Always on top) */
 #secret-input-zone { 
     position: fixed; 
     right: 0; 
@@ -161,10 +157,9 @@ body, html {
 }
 .secret-btn:hover { background: var(--main-color); color: #000; box-shadow: var(--glow); }
 
-/* Windows System */
 .window-panel { 
-    user-select: none; /* Prevents highlighting text while dragging */ 
-    touch-action: none; /* Prevents scrolling on mobile while dragging */
+    user-select: none; 
+    touch-action: none; 
     display: none; 
     position: fixed; 
     background: rgba(0,0,0,0.95); 
@@ -172,7 +167,7 @@ body, html {
     z-index: 2000; 
     box-shadow: var(--glow); 
     backdrop-filter: blur(4px);
-    box-sizing: border-box; /* Prevents padding from breaking width */
+    box-sizing: border-box; 
     min-width: 300px;
     min-height: 200px;
 }
@@ -188,7 +183,6 @@ body, html {
 }
 .window-body { padding: 15px; height: calc(100% - 45px); display: flex; overflow: hidden; }
 
-/* File Explorer Specifics */
 #fe-sidebar { width: 140px; border-right: 1px solid #222; padding-right: 10px; display: flex; flex-direction: column; gap: 8px; }
 #fe-main { flex-grow: 1; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 20px; align-content: start; overflow-y: auto; }
 .fe-item { width: 80px; text-align: center; cursor: pointer; padding: 8px; border: 1px solid transparent; transition: 0.2s; }
@@ -200,7 +194,6 @@ body, html {
 
 #trash-zone.drag-over { background: var(--danger) !important; color: #000 !important; box-shadow: 0 0 20px var(--danger); }
 
-/* Terminal & Editor */
 #cmd-output { height: 100%; width: 100%; overflow-y: auto; font-size: 12px; line-height: 1.4; color: var(--main-color); scrollbar-width: thin; }
 #cmd-input { background: transparent; border: none; color: #fff; font-family: monospace; outline: none; flex-grow: 1; font-size: 12px; }
 
@@ -214,7 +207,6 @@ body, html {
 }
 #edit-area { width: 100%; height: 85%; background: #050505; color: #00ffff; border: none; padding: 15px; box-sizing: border-box; font-family: monospace; outline: none; resize: none; }
 
-/* Grid Modules */
 #menu-container { padding: 40px; display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 25px; flex-grow: 1; overflow-y: auto; justify-content: center; }
 .game-card { 
     width: 200px; 
@@ -322,7 +314,6 @@ body, html {
     </div>
 </div>
 
-<!-- overlays -->
 <div id="brightness-overlay"></div>
 <div id="blue-overlay"></div>
 
@@ -399,14 +390,11 @@ window.vfs = JSON.parse(localStorage.getItem('ghost_vfs')) || { "root": { type: 
 window.currentPath = ["root"];
 window.openFileName = null;
 
-// --- DOUBLE ENTER SECRET ZONE ---
 window.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
 
-    // ❗ ignore if typing in inputs
  const active = document.activeElement;
 
-// only block if it's YOUR inputs
 if (
     active &&
     (active.id === "cmd-input" ||
@@ -435,7 +423,6 @@ if (
     window.lastEnterTime = now;
 });
 
-// --- USER HANDLING ---
 window.handleUser = function() { 
     window.sessionUser = document.getElementById('u-name').value.trim(); 
     if(!window.sessionUser) return;
@@ -456,13 +443,11 @@ window.handleAuth = function() {
     window.renderFE(); 
 }
 
-// --- SYSTEM LOCK ---
 window.lockSystem = function() {
     document.getElementById('panic-white').classList.add('active');
     setTimeout(() => { location.reload(); }, 500);
 }
 
-// --- WINDOW MANAGEMENT ---
 window.toggleWindow = function(id) { 
     let el = document.getElementById(id); 
     el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
@@ -491,7 +476,6 @@ document.querySelectorAll('.window-header').forEach(header => {
     };
 });
 
-// --- FILE SYSTEM ---
 window.getDir = function(p) { 
     let c = window.vfs; 
     p.forEach(x => { if (c[x] && c[x].children) c = c[x].children; else if(c[x]) c = c[x]; }); 
@@ -596,7 +580,6 @@ window.dropToTrash = function(e, el) {
 
 
 
-// --- TERMINAL ---
 window.runCommand = function(v) {
     let args = v.trim().split(/\s+/);
     let cmd = args[0].toLowerCase();
@@ -619,7 +602,7 @@ window.runCommand = function(v) {
                 "theme [col]  : green | red | blue| purple | gold [or] theme custom"
             ];
             
-            // Loop through the array and print each line individually
+        
             helpCommands.forEach(cmd => window.printToCMD(cmd));
             break;
         case "scan": if(val) window.executeLoad(val); else window.printToCMD("$err: Missing target URL."); break;
@@ -686,7 +669,6 @@ window.runCommand = function(v) {
     }
 }
 
-// --- MODULES ---
 window.loadModules = function() {
     const m = document.getElementById('menu-container'); m.innerHTML = "";
     let v = JSON.parse(localStorage.getItem('ghost_vault')) || {};
@@ -712,7 +694,6 @@ window.exitGame = function() {
     document.getElementById('back-to-menu').style.display = 'none'; 
 }
 
-// --- MATRIX EFFECT ---
 window.startMatrix = function() {
     const c = document.getElementById('matrix-bg'); const ctx = c.getContext('2d');
     c.width = window.innerWidth; c.height = window.innerHeight;
@@ -729,7 +710,6 @@ window.startMatrix = function() {
     }, 33);
 }
 
-// --- FULLSCREEN TOGGLE ---
 window.toggleFS = function(id) {
     let panel = document.getElementById(id);
     if (!panel.dataset.fs || panel.dataset.fs === "false") {
@@ -751,7 +731,6 @@ window.toggleFS = function(id) {
     }
 }
 
-// --- TEXT EDITOR ---
 window.openEditor = function(name, content) {
     window.openFileName = name;
     const area = document.getElementById('edit-area');
@@ -794,7 +773,6 @@ window.saveText = function() {
     } else window.printToCMD("$err: Save failed. Buffer lost.");
 }
 
-// --- VERIFY PASSCODE ---
 window.verifyPass = function() {
     const val = document.getElementById('p-code').value;
     if (val === "ghost") {
@@ -824,7 +802,6 @@ window.closeEditor = function() {
     window.openFileName = null;
 };
 
-// --- INPUT EVENTS ---
 document.getElementById('p-code').onkeydown = (e) => { if(e.key === 'Enter') window.verifyPass(); };
 document.getElementById('u-name').onkeydown = (e) => { if(e.key === 'Enter') window.handleUser(); };
 document.getElementById('cmd-input').addEventListener('keydown', function(e) {
@@ -884,7 +861,6 @@ window.dropFile = function(e) {
 };
 let panicTimeout = null;
 
-// ESC toggle for panic white with red bar hide/show
 let isPanicActive = false;
 
 window.addEventListener('keydown', (e) => {
@@ -892,22 +868,18 @@ window.addEventListener('keydown', (e) => {
         const panic = document.getElementById('panic-white');
         const redBar = document.getElementById('edge-swipe-zone');
 
-        // toggle panic
         isPanicActive = !isPanicActive;
 
         if (isPanicActive) {
             panic.classList.add('active');
-            // hide red bar while white overlay is on
             redBar.style.visibility = 'hidden';
         } else {
             panic.classList.remove('active');
-            // bring red bar back
             redBar.style.visibility = 'visible';
         }
     }
 });
 window.delMod = function(index, e) {
-    // stop click from triggering parent
     if (e) e.stopPropagation();
 
     let vault = JSON.parse(localStorage.getItem('ghost_vault')) || {};
@@ -987,15 +959,11 @@ window.detectYTFailure = function(url) {
     const frame = document.getElementById('game-frame');
 
     try {
-        // If iframe didn't load correctly or is blank-ish
         if (!frame.src || frame.src === "about:blank") {
             throw new Error("Load failed");
         }
 
-        // We can't read iframe content (cross-origin),
-        // so we simulate detection based on known failure patterns
         if (url.includes("videoseries")) {
-            // playlists are more likely to fail if private
             window.printToCMD("$sys: Verifying playlist access...");
             
             setTimeout(() => {
@@ -1018,73 +986,62 @@ if (themePicker) {
 window.triggerExit = function() {
     const game = document.getElementById('game-view');
     const boring = document.getElementById('boring-view');
-    const edgeZone = document.getElementById('edge-swipe-zone');   // 🔴 red bar
-    const secretZone = document.getElementById('secret-input-zone'); // 🟢 green bar
-    const aiPanel = document.getElementById('ghost-ai-panel');     // 👻 AI panel
+    const edgeZone = document.getElementById('edge-swipe-zone');  
+    const secretZone = document.getElementById('secret-input-zone'); 
+    const aiPanel = document.getElementById('ghost-ai-panel');     
 
     if (!game || !boring) return;
 
-    console.log("🚪 EXIT TRIGGERED");
+    console.log("EXIT TRIGGERED");
 
-    // show boring page underneath
     boring.style.display = "block";
 
-    // animation
     game.style.transform = "translateX(-85%)";
     game.style.opacity = "0.7";
 
     setTimeout(() => {
-        // 🔥 FULL RESET
         window.sessionUser = null;
 
-        // hide game
         game.style.display = "none";
         game.style.transform = "";
         game.style.opacity = "";
 
-        // ❗ hide red bar
         if (edgeZone) edgeZone.classList.remove('active');
 
-        // ❗ hide green bar
         if (secretZone) secretZone.classList.remove('primed');
 
-        // ❗ hide AI panel
         if (aiPanel) aiPanel.style.display = 'none';
 
-        // reset login flow
         document.getElementById('step-passcode').style.display = 'block';
         document.getElementById('step-username').style.display = 'none';
         document.getElementById('step-login').style.display = 'none';
         document.getElementById('auth-only').style.display = 'none';
 
-        // reset inputs
         document.getElementById('p-code').value = "";
         document.getElementById('u-name').value = "";
 
-        console.log("✅ SYSTEM RESET COMPLETE");
+        console.log("SYSTEM RESET COMPLETE");
     }, 300);
 };
 document.addEventListener("DOMContentLoaded", () => {
     const edgeZone = document.getElementById("edge-swipe-zone");
 
     if (!edgeZone) {
-        console.log("❌ edgeZone NOT FOUND");
+        console.log("edgeZone NOT FOUND");
         return;
     }
 
-    console.log("✅ edgeZone FOUND");
+    console.log("edgeZone FOUND");
 
     edgeZone.addEventListener("click", () => {
-        console.log("🔥 EDGE CLICKED");
+        console.log("EDGE CLICKED");
         triggerExit();
     });
 });
-// --- SECRET KONAMI RAINBOW THEME ---
 window.rainbowActive = false;
 window.rainbowHue = 0;
 window.rainbowLastColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
 
-// Toggle function
 window.toggleRainbowTheme = function() {
     window.rainbowActive = !window.rainbowActive;
 
@@ -1105,7 +1062,6 @@ window.toggleRainbowTheme = function() {
     }
 }
 
-// --- SECRET CODE: W,W,S,S,D,A,1 ---
 window.secretCode = ['w','w','s','s','d','a','1'];
 window.secretIndex = 0;
 
@@ -1114,12 +1070,11 @@ window.addEventListener('keydown', (e) => {
     if (key === window.secretCode[window.secretIndex]) {
         window.secretIndex++;
         if (window.secretIndex === window.secretCode.length) {
-            // Full code entered
             window.toggleRainbowTheme();
-            window.secretIndex = 0; // reset for next toggle
+            window.secretIndex = 0; 
         }
     } else {
-        window.secretIndex = 0; // reset if wrong key
+        window.secretIndex = 0; 
     }
 });
 
@@ -1128,7 +1083,7 @@ window.toggleGhostAI = function() {
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
-// Secret key combo
+
 let ghostAISequence = [];
 const secretSequence = ['p','l','s','a','i'];
 
@@ -1136,7 +1091,7 @@ document.addEventListener('keydown', (e) => {
     ghostAISequence.push(e.key.toLowerCase());
     
     if (ghostAISequence.join(',').includes(secretSequence.join(','))) {
-        window.toggleGhostAI();  // show/hide panel
+        window.toggleGhostAI();  
         ghostAISequence = [];
     }
     
@@ -1150,7 +1105,7 @@ window.ghostAIQuery = async function() {
     const query = input.value.trim();
     if (!query) return;
 
-    // Start spinning animation
+    
     g.style.animation = 'spin 1s linear infinite';
     responseDiv.innerText = 'Synthesizing intelligence...';
 
@@ -1159,7 +1114,7 @@ window.ghostAIQuery = async function() {
     let relatedChunks = [];
 
     try {
-        // 📖 Dictionary API
+        
         try {
             const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`);
             if (dictRes.ok) {
@@ -1172,21 +1127,19 @@ window.ghostAIQuery = async function() {
             }
         } catch {}
 
-        // 🌐 Wikipedia summary
+     
         try {
             const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
             const wikiData = await wikiRes.json();
             if (wikiData.extract) summaryChunks.push(wikiData.extract);
         } catch {}
 
-        // 🔎 DuckDuckGo Instant Answer
         try {
             const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_redirect=1&skip_disambig=1`);
             const ddgData = await ddgRes.json();
             if (ddgData.AbstractText) summaryChunks.push(ddgData.AbstractText);
         } catch {}
 
-        // 🧠 Datamuse related words
         try {
             const wordRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(query)}`);
             const wordData = await wordRes.json();
@@ -1195,7 +1148,6 @@ window.ghostAIQuery = async function() {
             }
         } catch {}
 
-        // === Combine & format into labeled sections ===
         let finalText = "";
 
         if (definitionChunks.length) finalText += `📖 Definition:\n${definitionChunks.join("; ")}\n\n`;
@@ -1207,13 +1159,13 @@ window.ghostAIQuery = async function() {
     } catch (err) {
         responseDiv.innerText = 'AI synthesis error.';
     } finally {
-        g.style.animation = ''; // stop spinning
+        g.style.animation = ''; 
     }
 
     input.value = "";
 };
 
-// Trigger query on Enter
+
 document.getElementById('ghost-ai-query').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') window.ghostAIQuery();
 });
