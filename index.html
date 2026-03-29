@@ -948,7 +948,7 @@ window.decodeYT = function() {
     window.printToCMD("$sys: Decoding media stream...");
     window.executeLoad(embedUrl);
 
-    // Detect failure after delay
+   
     setTimeout(() => {
         window.detectYTFailure(embedUrl);
     }, 2500);
@@ -1053,7 +1053,7 @@ window.toggleRainbowTheme = function() {
                 return;
             }
             document.documentElement.style.setProperty('--main-color', `hsl(${window.rainbowHue}, 100%, 50%)`);
-            window.rainbowHue = (window.rainbowHue + 8) % 360; // faster cycling
+            window.rainbowHue = (window.rainbowHue + 8) % 360; 
             requestAnimationFrame(rainbowLoop);
         }
         requestAnimationFrame(rainbowLoop);
@@ -1172,3 +1172,5 @@ document.getElementById('ghost-ai-query').addEventListener('keydown', function(e
 </script>
 </body>
 </html>
+
+
