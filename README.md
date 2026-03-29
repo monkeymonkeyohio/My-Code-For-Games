@@ -19,6 +19,4 @@ DO NOT MISUSE.
 
 USE THIS RESPONSIBLY
 
-Comments Are For You To Learn, and What the Sections are For.
-
 Created by: monkeymonkeyohio
