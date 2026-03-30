@@ -29,6 +29,7 @@ body, html {
     color: var(--main-color);
 }
 
+
 #boring-view { 
     padding: 40px 10%; 
     color: #444; 
@@ -157,6 +158,78 @@ body, html {
 }
 .secret-btn:hover { background: var(--main-color); color: #000; box-shadow: var(--glow); }
 
+
+
+#chat-login, #chat-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: black;
+    z-index: 999999; 
+}
+
+
+.chat-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background: #111;
+    padding: 30px;
+    border: 1px solid #00ff00;
+    text-align: center;
+}
+
+.chat-box input {
+    width: 200px;
+    padding: 10px;
+    margin: 10px;
+    background: black;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+}
+
+
+.chat-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 180px;
+    height: 100%;
+
+    background: #050505;
+    border-right: 1px solid #00ff00;
+    padding: 20px;
+}
+
+#chat-user::before {
+    content: "🟢 ";
+}
+
+.chat-content {
+    margin-left: 180px;
+    height: 100%;
+}
+
+.chat-content iframe {
+    width: 100%;
+    height: 100%;
+}
+
+
+.chat-exit {
+    margin-top: 20px;
+    background: black;
+    border: 1px solid red;
+    color: red;
+    padding: 10px;
+    cursor: pointer;
+}
+
 .window-panel { 
     user-select: none; 
     touch-action: none; 
@@ -237,6 +310,28 @@ body, html {
         <p>Advanced Computational Theory (ACT) is the rigorous study of the limits, capabilities, and fundamental structures of information processing. It is the mathematical heartbeat of every digital interaction, moving beyond simple "coding" into the realm of existential questions: What is computable? How efficiently can we solve a problem? And what happens when the physical limits of silicon meet the infinite complexity of logic? To understand ACT is to understand the transition of humanity from a tool-using species to an information-architecting one.I. The Foundations: Automata and Formal LanguagesAt the bedrock of computational theory lies Automata Theory, the study of abstract machines and the problems they can solve. This field categorizes computation into a hierarchy, most famously the Chomsky Hierarchy.Finite State Machines (FSM): The simplest models, used for basic logic like vending machines or text pattern matching.Context-Free Grammars: The logic that allows programming languages like C++ or Python to be parsed by compilers.Turing Machines: The ultimate theoretical model. Proposed by Alan Turing in 1936, this "machine" consists of an infinite tape and a head that reads/writes symbols.Advanced theory posits that if a problem cannot be solved by a Turing Machine, it is uncomputable. The most famous example is the Halting Problem, which proves mathematically that no program can ever exist that can perfectly predict whether any other program will eventually stop or run forever. This realization sets a hard boundary on human logic: there are some truths that are true, but unprovable through calculation.II. The War of Efficiency: Complexity Theory ($P$ vs $NP$)If Automata Theory asks "Can it be done?", Complexity Theory asks "How much will it cost?" In ACT, "cost" is measured in Time (CPU cycles) and Space (RAM/memory).The most significant unsolved mystery in science today is the relationship between two classes of problems:$P$ (Polynomial Time): Problems we can solve quickly (e.g., sorting a list of names).$NP$ (Nondeterministic Polynomial Time): Problems where we can’t necessarily find a solution quickly, but if someone gives us the answer, we can verify it’s correct instantly (e.g., a complex Sudoku puzzle or cracking an RSA encryption key).The question $P = NP?$ asks if every problem whose solution can be quickly verified can also be quickly solved. If $P$ were found to equal $NP$, modern cryptography would collapse overnight, as the "hard" math guarding bank accounts would suddenly become "easy."III. The Quantum Leap: Non-Classical ComputationWe are currently exiting the "Transistor Era" and entering the Quantum Era. Advanced Computational Theory is being rewritten to accommodate the Qubit. Unlike a traditional bit (0 or 1), a qubit exists in a superposition of both states simultaneously.Theoretical frameworks like Shor’s Algorithm prove that a sufficiently powerful quantum computer could factor large integers exponentially faster than any classical supercomputer. This introduces a new complexity class: BQP (Bounded-error Quantum Polynomial time). ACT researchers are now focused on "Post-Quantum Cryptography," designing math that even a quantum deity couldn't crack.IV. Distributed Systems and the Theory of ConsensusIn the modern age, computation is rarely centralized. It happens across billions of nodes—the Cloud, the Blockchain, and the Internet of Things (IoT). ACT addresses this through Distributed Computing Theory.The primary challenge here is the CAP Theorem, which states that a distributed system can only provide two out of three guarantees:Consistency: Every node sees the same data at the same time.Availability: Every request receives a response.Partition Tolerance: The system continues to work despite network failures.This theoretical constraint is why your bank balance might take a moment to update across different apps, or why decentralized networks like Bitcoin prioritize security over transaction speed.V. The Synthesis: Neural Theory and AIFinally, ACT is converging with biology. Neural Computational Theory treats the human brain as a massive, low-power parallel processor. Modern Deep Learning is an application of this, using layers of "weights" and "biases" to approximate any mathematical function.The frontier of this theory is Artificial General Intelligence (AGI). ACT scientists are working to define the "Algorithm of Consciousness"—a set of recursive functions that would allow a machine to not just process data, but to understand intent and context with the fluidity of a biological mind.Conclusion: The Invisible ArchitectureAdvanced Computational Theory is the silent scaffolding of the 21st century. It tells us that while information is infinite, our resources to process it are governed by the laws of physics and the elegance of mathematics. As we move from silicon to quantum and from code to intent, the theories of Turing, Gödel, and Shannon remain our only map through the digital void.</p>
         <p><i>Complicated Machine Learning</i></p>
     </div>
+
+<div id="chat-login" style="display:none;">
+    <div class="chat-box">
+        <h2>ENTER ID</h2>
+        <input id="chat-username" placeholder="username">
+        <button onclick="window.enterChat()">ENTER</button>
+    </div>
+</div>
+
+<div id="chat-main" style="display:none;">
+    <div class="chat-sidebar">
+        <div id="chat-user"></div>
+        <button onclick="window.exitChat()" class="chat-exit">EXIT</button>
+    </div>
+
+    <div class="chat-content">
+        <iframe 
+            src="YOUR_GOOGLE_DOCS_URL_HERE"
+            frameborder="0">
+        </iframe>
+    </div>
+</div>
 
 <div id="ghost-ai-panel" style="
     display:none;
@@ -1169,8 +1264,90 @@ window.ghostAIQuery = async function() {
 document.getElementById('ghost-ai-query').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') window.ghostAIQuery();
 });
+
+window.chatBuffer = "";
+window.chatUser = null;
+
+
+window.addEventListener("keydown", (e) => {
+    window.chatBuffer += e.key.toLowerCase();
+
+    if (window.chatBuffer.includes("chat")) {
+        window.openChatLogin();
+        window.chatBuffer = "";
+    }
+
+    if (window.chatBuffer.length > 10) window.chatBuffer = "";
+});
+
+
+window.openChatLogin = function() {
+    const login = document.getElementById("chat-login");
+    if (login) login.style.display = "block";
+};
+
+
+window.enterChat = function() {
+    const input = document.getElementById("chat-username");
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) return;
+
+    window.chatUser = name;
+
+    document.getElementById("chat-login").style.display = "none";
+    document.getElementById("chat-main").style.display = "block";
+
+    document.getElementById("chat-user").innerText = name;
+};
+
+
+window.exitChat = function() {
+    window.chatUser = null;
+
+    document.getElementById("chat-main").style.display = "none";
+    document.getElementById("chat-login").style.display = "none";
+
+    document.getElementById("chat-username").value = "";
+    document.getElementById("chat-user").innerText = "";
+};
+window.chatChannel = new BroadcastChannel("ghost_chat");
+
+
+window.sendJoin = function(name) {
+    window.chatChannel.postMessage({
+        type: "join",
+        user: name
+    });
+};
+
+
+window.chatUsers = {};
+
+window.chatChannel.onmessage = (e) => {
+    const data = e.data;
+
+    if (data.type === "join") {
+        window.chatUsers[data.user] = true;
+        window.updateUserList();
+    }
+
+    if (data.type === "leave") {
+        delete window.chatUsers[data.user];
+        window.updateUserList();
+    }
+};
+
+
+window.updateUserList = function() {
+    let html = "";
+    Object.keys(window.chatUsers).forEach(u => {
+        html += "🟢 " + u + "<br>";
+    });
+
+    document.getElementById("chat-user").innerHTML = html;
+};
 </script>
 </body>
 </html>
-
-
