@@ -1,5 +1,6 @@
 Enjoy! Hope You Guys Like CLASSTOOLS-EVADER2000
 
+Chat was added. You must insert your own google docs url inside for it to work. Make sure its all people or whoever you selected. Then it will work.
 
 Background: Linewize is a tool for monitoring students. This code does NOT evade the live screen monitoring.
 
